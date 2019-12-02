@@ -10,8 +10,8 @@ public class ModifyService extends BaseCommand {
 	int port;
 	String uuid;
 	boolean added;
-	public ModifyService(Socket socket, String uuid, int port, boolean added) {
-		super(CommandType.MODIFYSERVICE, socket);
+	public ModifyService(String uuid, int port, boolean added) {
+		super(CommandType.MODIFYSERVICE);
 		this.uuid = uuid;
 		this.port = port;
 		this.added = added;

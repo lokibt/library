@@ -9,8 +9,8 @@ import java.net.Socket;
 
 public class Join extends BaseCommand {
 	
-	public Join( Socket socket ) {
-		super(CommandType.JOIN, socket);
+	public Join() {
+		super(CommandType.JOIN);
 	}
 
 	@Override

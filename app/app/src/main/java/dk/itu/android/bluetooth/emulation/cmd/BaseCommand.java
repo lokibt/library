@@ -9,6 +9,8 @@ import android.util.Log;
 
 public abstract class BaseCommand implements Runnable {
 	static final String UTF8 = "UTF8";
+	static final String DEV_MACHINE_IP = "10.0.2.2";
+	static final int DISCOVERY_SERVICE_PORT = 8199;
 
 	CommandType type;
 	Socket socket;
@@ -16,18 +18,18 @@ public abstract class BaseCommand implements Runnable {
 	OutputStream out;
 	boolean hasParameters = false;
 	
-	public BaseCommand(CommandType type, Socket socket) {
-		this(type,socket,true);
+	public BaseCommand(CommandType type) {
+		this(type,true);
 	}
-	public BaseCommand(CommandType type, Socket socket, boolean hasParameters) {
+	public BaseCommand(CommandType type,  boolean hasParameters) {
 		this.type = type;
-		this.socket = socket;
 		this.hasParameters = hasParameters;
 	}
 
 	@Override
 	public void run() {
 		try {
+			this.socket = new Socket(DEV_MACHINE_IP,DISCOVERY_SERVICE_PORT);
 			out = socket.getOutputStream();
 			in = socket.getInputStream();
 			//1. send preamble (command name)

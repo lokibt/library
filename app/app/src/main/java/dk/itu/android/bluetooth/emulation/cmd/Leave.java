@@ -7,8 +7,8 @@ import java.net.Socket;
 
 public class Leave extends NoParamsBaseCommand {
 	
-	public Leave( Socket socket ) {
-		super(CommandType.LEAVE,socket);
+	public Leave() {
+		super(CommandType.LEAVE);
 	}
 
 	@Override

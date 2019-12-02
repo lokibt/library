@@ -6,8 +6,8 @@ import java.net.Socket;
 
 public abstract class NoParamsBaseCommand extends BaseCommand {
 
-	public NoParamsBaseCommand(CommandType type, Socket socket) {
-		super(type,socket,false);
+	public NoParamsBaseCommand(CommandType type) {
+		super(type,false);
 	}
 	
 	@Override

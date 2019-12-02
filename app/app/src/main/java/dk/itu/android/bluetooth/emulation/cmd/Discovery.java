@@ -22,8 +22,8 @@ public class Discovery extends NoParamsBaseCommand {
 	List<dk.itu.android.bluetooth.BluetoothDevice> devices = new ArrayList();
 	WithDevices withDevices = null;
 	
-	public Discovery( Socket socket ) {
-		super(CommandType.DISCOVERY, socket);
+	public Discovery() {
+		super(CommandType.DISCOVERY);
 	}
 	public void setWithDevices(WithDevices wd) {
 		this.withDevices = wd;

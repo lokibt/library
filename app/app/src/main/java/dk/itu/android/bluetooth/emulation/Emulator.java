@@ -28,7 +28,7 @@ public class Emulator {
 	
 	public void join() {
 		try {
-			new Join(new Socket(DevMachineIP,DiscoveryServerPort)).run();
+			new Thread(new Join()).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "cannot join", e);
@@ -36,7 +36,7 @@ public class Emulator {
 	}
 	public void leave() {
 		try {
-			new Leave(new Socket(DevMachineIP,DiscoveryServerPort)).run();
+			new Thread(new Leave()).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "cannot leave", e);
@@ -46,7 +46,7 @@ public class Emulator {
 	public void asyncDiscovery( Discovery.WithDevices wd ) {
 		Discovery d;
 		try {
-			d = new Discovery(new Socket(DevMachineIP,DiscoveryServerPort));
+			d = new Discovery();
 			d.setWithDevices(wd);
 			new Thread(d).start();
 		} catch (Exception e) {
@@ -58,9 +58,9 @@ public class Emulator {
 	public void discovery( Discovery.WithDevices wd ) {
 		Discovery d;
 		try {
-			d = new Discovery(new Socket(DevMachineIP,DiscoveryServerPort));
+			d = new Discovery();
 			d.setWithDevices(wd);
-			d.run();
+			new Thread(d).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "cannot discovery", e);
@@ -73,8 +73,8 @@ public class Emulator {
 			new FutureTask<List<BluetoothDevice>>(new Callable<List<BluetoothDevice>>(){
 			@Override
 			public List<BluetoothDevice> call() throws Exception {
-				Discovery d = new Discovery(new Socket(DevMachineIP,DiscoveryServerPort));
-				d.run();
+				Discovery d = new Discovery();
+				new Thread(d).start();
 				return d.getDevices();
 			}
 		});
@@ -101,7 +101,7 @@ public class Emulator {
 //			new FutureTask<List<BluetoothDevice>>(new Callable<List<BluetoothDevice>>(){
 //			@Override
 //			public List<BluetoothDevice> call() throws Exception {
-//				Discovery d = new Discovery(new Socket(DevMachineIP,DiscoveryServerPort));
+//				Discovery d = new Discovery();
 //				d.run();
 //				return d.getDevices();
 //			}
@@ -129,7 +129,7 @@ public class Emulator {
 	}
 	protected void modifyService( String uuid, int port, boolean add ) {
 		try {
-			new ModifyService(new Socket(DevMachineIP,DiscoveryServerPort),uuid,port,add).run();
+			new ModifyService(uuid,port,add).run();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "cannot modify service", e);
