@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -13,20 +12,20 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import android.util.Log;
-import dk.itu.android.bluetooth.emulation.BTEmulator;
+import dk.itu.android.bluetooth.emulation.Emulator;
 
 public class BluetoothServerSocket {
 	static final String TAG = "BTEMU_SERVERSOCKET";
 
 	final ExecutorService executor = Executors.newFixedThreadPool(1);
-	BTEmulator emulator;
+	Emulator emulator;
 	Timer timer = null;
 	ServerSocket socket;
 	
 	int port;
 	String UUID;
 	
-	protected BluetoothServerSocket(BTEmulator emulator,String UUID,int port) {
+	protected BluetoothServerSocket(Emulator emulator, String UUID, int port) {
 		this.emulator = emulator;
 		this.port = port;
 		this.UUID = UUID;

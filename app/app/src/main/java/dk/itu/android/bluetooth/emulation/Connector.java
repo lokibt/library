@@ -3,19 +3,19 @@ package dk.itu.android.bluetooth.emulation;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class BTService implements Parcelable {
+public class Connector implements Parcelable {
 
-	public static Parcelable.Creator<BTService> CREATOR = new Parcelable.Creator<BTService>() {
+	public static Parcelable.Creator<Connector> CREATOR = new Parcelable.Creator<Connector>() {
 		@Override
-		public BTService createFromParcel(Parcel source) {
-			BTService out = new BTService();
+		public Connector createFromParcel(Parcel source) {
+			Connector out = new Connector();
 			out.tcpPort = source.readInt();
 			out.uuid = source.readString();
 			return out;
 		}
 		@Override
-		public BTService[] newArray(int size) {
-			return new BTService[size];
+		public Connector[] newArray(int size) {
+			return new Connector[size];
 		}
 	};
 	
@@ -32,8 +32,8 @@ public class BTService implements Parcelable {
 	int tcpPort;
 	String uuid;
 	
-	public BTService(){}
-	public BTService(String uuid, int port) {
+	public Connector(){}
+	public Connector(String uuid, int port) {
 		this.uuid = uuid;
 		this.tcpPort = port;
 	}

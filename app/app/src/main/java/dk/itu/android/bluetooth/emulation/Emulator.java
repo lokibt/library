@@ -14,16 +14,16 @@ import dk.itu.android.bluetooth.emulation.cmd.Join;
 import dk.itu.android.bluetooth.emulation.cmd.Leave;
 import dk.itu.android.bluetooth.emulation.cmd.ModifyService;
 
-public class BTEmulator {
+public class Emulator {
 	static final String TAG = "BTEMULATOR";
 
 	static final String DevMachineIP = "10.0.2.2";
 	static final int DiscoveryServerPort = 8199;
 	
-	static final BTEmulator _instance = new BTEmulator();
-	public static BTEmulator instance(){ return _instance; }
+	static final Emulator _instance = new Emulator();
+	public static Emulator instance(){ return _instance; }
 	
-	public BTEmulator() {
+	public Emulator() {
 	}
 	
 	public void join() {

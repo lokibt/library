@@ -16,7 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import dk.itu.android.bluetooth.emulation.BTEmulator;
+import dk.itu.android.bluetooth.emulation.Emulator;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 
 public class BluetoothAdapter {
@@ -148,7 +148,7 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 	
 	private BluetoothAdapter() {
 		this.addr = getAddress();
-		this.emulator = new BTEmulator();
+		this.emulator = new Emulator();
 	}
 	
 	public boolean cancelDiscovery() {
@@ -237,7 +237,7 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 	
 	
 	/////////////////////////////
-	private BTEmulator emulator;
+	private Emulator emulator;
 	private boolean setEnabled(boolean enable) {
 		Log.d("BTADAPTEREMULATOR", "setEnabled->"+enable+", was->"+enabled);
 		if(enable){// && !enabled) {

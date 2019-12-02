@@ -8,7 +8,7 @@ import java.util.UUID;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import dk.itu.android.bluetooth.emulation.BTService;
+import dk.itu.android.bluetooth.emulation.Connector;
 
 public class BluetoothDevice implements Parcelable {
 	
@@ -21,7 +21,7 @@ public class BluetoothDevice implements Parcelable {
 			out.name = source.readString();
 			Parcelable[] tmp = source.readParcelableArray(BluetoothDevice.class.getClassLoader());
 			for(Parcelable s : tmp) {
-				out.services.add((BTService)s);
+				out.services.add((Connector)s);
 			}
 			return out;
 		}
@@ -34,7 +34,7 @@ public class BluetoothDevice implements Parcelable {
 		out.writeString(addr);
 		out.writeString(tcpAddr);
 		out.writeString(name);
-		out.writeParcelableArray(services.toArray(new BTService[]{}), 0);
+		out.writeParcelableArray(services.toArray(new Connector[]{}), 0);
 	}
 
 	
@@ -62,7 +62,7 @@ public class BluetoothDevice implements Parcelable {
 	//
 	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) throws IOException {
 		String uuids = uuid.toString();
-		for(BTService s : services) {
+		for(Connector s : services) {
 			if(s.getUuid().equals(uuids)) {
 				Log.i("BT_DEVICE", "found service "+s.getUuid()+" on device "+addr);
 				return new BluetoothSocket(this.tcpAddr,s.getTcpPort(),this);
@@ -97,7 +97,7 @@ public class BluetoothDevice implements Parcelable {
 	String addr;
 	String tcpAddr;
 	String name;
-	List<BTService> services;
+	List<Connector> services;
 	
 	/**
 	 * THIS IS NOT PART OF THE ANDROID PLATFORM, IGNORE THIS METHOD!
@@ -108,14 +108,14 @@ public class BluetoothDevice implements Parcelable {
 		this.addr = btAddr;
 		this.tcpAddr = tcpAddr;
 		this.name = name;
-		this.services = new ArrayList<BTService>();
+		this.services = new ArrayList<Connector>();
 		this.btClass = new BluetoothClass(
 			android.bluetooth.BluetoothClass.Device.PHONE_SMART,
 			android.bluetooth.BluetoothClass.Device.Major.PHONE,
 			android.bluetooth.BluetoothClass.Service.NETWORKING);
 	}
 	private BluetoothDevice() {
-		this.services = new ArrayList<BTService>();
+		this.services = new ArrayList<Connector>();
 		this.btClass = new BluetoothClass(
 			android.bluetooth.BluetoothClass.Device.PHONE_SMART,
 			android.bluetooth.BluetoothClass.Device.Major.PHONE,
@@ -128,7 +128,7 @@ public class BluetoothDevice implements Parcelable {
 	 * @param port
 	 */
 	public void addService(String uuid, int port) {
-		this.services.add(new BTService(uuid,port));
+		this.services.add(new Connector(uuid,port));
 	}
 	
 	/**
