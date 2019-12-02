@@ -1,5 +1,6 @@
 package dk.itu.android.bluetooth;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,10 +103,9 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 		if(context != null) return;
 		context=c;
 		try {
-			InputStream is = c.getContentResolver().openInputStream(Uri.parse("file:///data/data/dk.itu.android.btemu/files/BTADDR.TXT"));
-			Reader reader = new InputStreamReader(is);
-			char[] buf = new char[100];
-			int read = reader.read(buf);
+			FileInputStream fis = c.openFileInput("BTADDR.TXT");
+			byte[] buf = new byte[100];
+			int read = fis.read(buf);
 			String addr = new String(buf,0,read);
 			def.addr = addr;
 			Log.i("BTADAPTEREMULATOR", "read address: "+def.addr);
@@ -114,18 +114,12 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 			Log.i("BTADAPTEREMULATOR", "file was not found", e);
 		}
 		try {
-//			for(String name : c.fileList()){
-//				if(name.equals("BTADDR.TXT")) {
-//					Log.i("BTADAPTEREMULATOR", "btaddress found");
-//					FileInputStream fis = c.openFileInput("BTADDR.TXT");
-//					return;
-//				}
-//			}
-			FileOutputStream fos = c.openFileOutput("BTADDR.TXT", Context.MODE_WORLD_READABLE);
+			FileOutputStream fos = c.openFileOutput("BTADDR.TXT", Context.MODE_PRIVATE);
 			OutputStreamWriter outw = new OutputStreamWriter(fos);
 			outw.write(def.getAddress());
 			outw.flush();
 			outw.close();
+			Log.i("BTADAPTEREMULATOR", "wrote address: "+def.addr);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e("BTADAPTEREMULATOR", "cannot write BTADDR.TXT file!", e);
