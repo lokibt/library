@@ -1,4 +1,4 @@
-package dk.itu.android.btemu.service.cmd;
+package dk.itu.android.bluetooth.emulation.cmd;
 
 import java.io.BufferedReader;
 import java.io.IOException;

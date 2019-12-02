@@ -16,8 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import dk.itu.android.btemu.service.BTEmulator;
-import dk.itu.android.btemu.service.cmd.Discovery;
+import dk.itu.android.bluetooth.emulation.BTEmulator;
+import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 
 public class BluetoothAdapter {
 	public static final String ACTION_DISCOVERY_FINISHED = "dk.android.bluetooth.adapter.action.DISCOVERY_FINISHED";

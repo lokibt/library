@@ -1,4 +1,4 @@
-package dk.itu.android.btemu.service;
+package dk.itu.android.bluetooth.emulation;
 
 import java.net.Socket;
 import java.util.List;
@@ -9,10 +9,10 @@ import java.util.concurrent.FutureTask;
 
 import android.util.Log;
 import dk.itu.android.bluetooth.BluetoothDevice;
-import dk.itu.android.btemu.service.cmd.Discovery;
-import dk.itu.android.btemu.service.cmd.Join;
-import dk.itu.android.btemu.service.cmd.Leave;
-import dk.itu.android.btemu.service.cmd.ModifyService;
+import dk.itu.android.bluetooth.emulation.cmd.Discovery;
+import dk.itu.android.bluetooth.emulation.cmd.Join;
+import dk.itu.android.bluetooth.emulation.cmd.Leave;
+import dk.itu.android.bluetooth.emulation.cmd.ModifyService;
 
 public class BTEmulator {
 	static final String TAG = "BTEMULATOR";

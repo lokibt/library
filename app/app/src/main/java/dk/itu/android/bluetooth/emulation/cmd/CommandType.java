@@ -1,4 +1,4 @@
-package dk.itu.android.btemu.service.cmd;
+package dk.itu.android.bluetooth.emulation.cmd;
 
 public enum CommandType {
 

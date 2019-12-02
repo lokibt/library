@@ -13,7 +13,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import android.util.Log;
-import dk.itu.android.btemu.service.BTEmulator;
+import dk.itu.android.bluetooth.emulation.BTEmulator;
 
 public class BluetoothServerSocket {
 	static final String TAG = "BTEMU_SERVERSOCKET";

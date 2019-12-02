@@ -8,7 +8,7 @@ import java.util.UUID;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import dk.itu.android.btemu.service.BTService;
+import dk.itu.android.bluetooth.emulation.BTService;
 
 public class BluetoothDevice implements Parcelable {
 	

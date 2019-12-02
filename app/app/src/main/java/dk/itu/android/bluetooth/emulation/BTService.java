@@ -1,4 +1,4 @@
-package dk.itu.android.btemu.service;
+package dk.itu.android.bluetooth.emulation;
 
 import android.os.Parcel;
 import android.os.Parcelable;
