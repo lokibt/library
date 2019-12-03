@@ -16,7 +16,10 @@ There is a slight modification to the code, in order to use the simulator:
 You will have to follow some steps:
 
  - download everything in this repository
- - compile and install into at least 2 android emulators the Android application fonr in */app*
+ 
+ - compile and install into at least 2 android emulators the Android application
+     - the Android Studio project can be found in */app*
+     
  - compile the *btsim-server* and run it.
      - there is an already precompiled jar in *dist*
      - execute `java -cp btsimserver.jar dk.itu.btemu.Server --help` to see some options
