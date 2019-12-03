@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import android.app.Activity;
 import android.util.Log;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
@@ -21,14 +22,23 @@ public class Emulator {
 	static final int DiscoveryServerPort = 8199;
 	
 	static final Emulator _instance = new Emulator();
-	public static Emulator instance(){ return _instance; }
-	
+
+	public static Emulator instance() {
+		return _instance;
+	}
+
+	private Activity ctrlActivity;
+
 	public Emulator() {
+	}
+
+	public void setControllerActivity(Activity ctrlActivity) {
+		this.ctrlActivity = ctrlActivity;
 	}
 	
 	public void join() {
 		try {
-			new Thread(new Join()).start();
+			new Thread(new Join(ctrlActivity)).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "cannot join", e);

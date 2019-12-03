@@ -1,16 +1,20 @@
 package dk.itu.android.bluetooth.emulation.cmd;
 
+import android.app.Activity;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.Socket;
 
 public class Join extends BaseCommand {
-	
-	public Join() {
+
+	Activity ctrlAction;
+
+	public Join(Activity ctrlAction) {
 		super(CommandType.JOIN);
+		this.ctrlAction = ctrlAction;
 	}
 
 	@Override
@@ -21,6 +25,8 @@ public class Join extends BaseCommand {
 		String name = "emulator-" + p;
 		name = name.trim();
 		dk.itu.android.bluetooth.BluetoothAdapter.getDefaultAdapter().setName(name);
+		ctrlAction.setResult(Activity.RESULT_OK);
+		ctrlAction.finish();
 	}
 
 	@Override
