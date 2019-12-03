@@ -16,11 +16,11 @@ There is a slight modification to the code, in order to use the simulator:
 You will have to follow some steps:
 
  - download everything in this repository
- - compile and install into at least 2 android emulators the *android-bt-simulator* application
-  - a precompiled version of the application is provided in the *dist* directory
-  - there are 3 source directories, `src`, `src-sysactivities` and `src-testapp`. The application need all of them, but for the library jar you just need to compile the main one (`src`). The jar library is provided as convenience in the `dist-shared` directory
+ - compile and install into at least 2 android emulators the Android application fonr in */app*
  - compile the *btsim-server* and run it.
-  - there is an already precompiled jar in *dist*, execute `java -jar btsimserver.jar --help` to see some options (if you don't have the `adb` command in your path, you will need to set the `adb.path` variable)
+     - there is an already precompiled jar in *dist*
+     - execute `java -cp btsimserver.jar dk.itu.btemu.Server --help` to see some options
+     - if you don't have the `adb` command in your path, you will need to set the `adb.path` variable
 
 You need to install the application because it will handle the *system activities* of the bluetooth, like switching on/off the radio and start a discovery.
 
