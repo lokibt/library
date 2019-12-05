@@ -142,7 +142,6 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 	
 	private BluetoothAdapter() {
 		this.addr = getAddress();
-		this.emulator = new Emulator();
 	}
 	
 	public boolean cancelDiscovery() {
@@ -226,12 +225,12 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 		emulator.asyncDiscovery(wd);
 		return true;
 	}
-	
+
 	
 	
 	
 	/////////////////////////////
-	private Emulator emulator;
+       private Emulator emulator = Emulator.instance();
 	private boolean setEnabled(boolean enable) {
 		Log.d("BTADAPTEREMULATOR", "setEnabled->"+enable+", was->"+enabled);
 		if(enable){// && !enabled) {

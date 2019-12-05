@@ -8,13 +8,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+import dk.itu.android.bluetooth.BluetoothAdapter;
+import dk.itu.android.bluetooth.emulation.Emulator;
+
 public class Join extends BaseCommand {
 
-	Activity ctrlAction;
-
-	public Join(Activity ctrlAction) {
+       public Join() {
 		super(CommandType.JOIN);
-		this.ctrlAction = ctrlAction;
 	}
 
 	@Override
@@ -25,8 +25,8 @@ public class Join extends BaseCommand {
 		String name = "emulator-" + p;
 		name = name.trim();
 		dk.itu.android.bluetooth.BluetoothAdapter.getDefaultAdapter().setName(name);
-		ctrlAction.setResult(Activity.RESULT_OK);
-		ctrlAction.finish();
+               emulator.sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+               emulator.finishController(Activity.RESULT_OK);
 	}
 
 	@Override

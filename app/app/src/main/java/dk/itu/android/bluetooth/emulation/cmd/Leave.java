@@ -3,7 +3,9 @@ package dk.itu.android.bluetooth.emulation.cmd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
+
+import dk.itu.android.bluetooth.BluetoothAdapter;
+import dk.itu.android.bluetooth.emulation.Emulator;
 
 public class Leave extends NoParamsBaseCommand {
 	
@@ -13,7 +15,8 @@ public class Leave extends NoParamsBaseCommand {
 
 	@Override
 	protected void readResponse(InputStream in) throws IOException {
-		//don't care
+               //don't care about response data
+               emulator.sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
 	}
 
 	@Override

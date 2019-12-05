@@ -33,6 +33,7 @@ public class Main extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
+                       Log.d("BTEMU_TEST", "Received broadcast action: " + action);
 			if(BluetoothDevice.ACTION_FOUND.equals(action)) {
 				addDevice( (BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) );
 			}
@@ -48,6 +49,7 @@ public class Main extends Activity {
     	BluetoothAdapter.SetContext(this);
         bta = BluetoothAdapter.getDefaultAdapter();
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+               filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 		registerReceiver(mReceiver, filter);
 		
 		Button enableBtn = (Button)findViewById(R.id.Enable);

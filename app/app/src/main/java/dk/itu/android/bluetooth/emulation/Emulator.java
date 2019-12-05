@@ -1,6 +1,5 @@
 package dk.itu.android.bluetooth.emulation;
 
-import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -8,6 +7,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
@@ -33,12 +35,13 @@ public class Emulator {
 	}
 
 	public void setControllerActivity(Activity ctrlActivity) {
+               Log.d(TAG, "setting controller activity " + ctrlActivity);
 		this.ctrlActivity = ctrlActivity;
 	}
 	
 	public void join() {
 		try {
-			new Thread(new Join(ctrlActivity)).start();
+                       new Thread(new Join()).start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.e(TAG, "cannot join", e);
@@ -145,4 +148,33 @@ public class Emulator {
 			Log.e(TAG, "cannot modify service", e);
 		}
 	}
+
+       public void sendBroadcast(String action) {
+               try {
+                       Context  appContext = Emulator.getApplicationUsingReflection();
+                       Log.d(TAG, "sendBroadcast in appContext: " + appContext);
+                       Intent intent = new Intent();
+                       intent.setAction(action);
+                       appContext.sendBroadcast(intent);
+               }
+               catch (Exception e) {
+                       Log.e(TAG, "", e);
+               }
+       }
+
+       public boolean finishController(int result) {
+               if (this.ctrlActivity == null) {
+                       Log.d(TAG, "trying to finish controller, but no activity set");
+                       return false;
+               }
+               this.ctrlActivity.setResult(result);
+               this.ctrlActivity.finish();
+               this.ctrlActivity = null;
+               return true;
+       }
+
+       public static Application getApplicationUsingReflection() throws Exception {
+               return (Application) Class.forName("android.app.ActivityThread")
+                               .getMethod("currentApplication").invoke(null, (Object[]) null);
+       }
 }
