@@ -1,91 +1,30 @@
 package dk.itu.android.bluetooth;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.util.Log;
 import dk.itu.android.bluetooth.emulation.Emulator;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 
 public class BluetoothAdapter {
 	public static final String ACTION_DISCOVERY_FINISHED = "dk.android.bluetooth.adapter.action.DISCOVERY_FINISHED";
 	public static final String ACTION_DISCOVERY_STARTED = "dk.android.bluetooth.adapter.action.DISCOVERY_STARTED";
-	/**
-	 * Contains EXTRA_LOCAL_NAME with the new name
-	 */
 	public static final String ACTION_LOCAL_NAME_CHANGED = "dk.android.bluetooth.adapter.action.LOCAL_NAME_CHANGED";
-	/**
-	 * Activity Action: Show a system activity that requests discoverable mode. This activity will also request the user to turn on Bluetooth if it is not currently enabled.
-Discoverable mode is equivalent to SCAN_MODE_CONNECTABLE_DISCOVERABLE. It allows remote devices to see this Bluetooth adapter when they perform a discovery.
-For privacy, Android is not discoverable by default.
-The sender of this Intent can optionally use extra field EXTRA_DISCOVERABLE_DURATION to request the duration of discoverability. Currently the default duration is 120 seconds, and maximum duration is capped at 300 seconds for each request.
-Notification of the result of this activity is posted using the onActivityResult(int, int, Intent) callback. The resultCode will be the duration (in seconds) of discoverability or RESULT_CANCELED if the user rejected discoverability or an error has occurred.
-Applications can also listen for ACTION_SCAN_MODE_CHANGED for global notification whenever the scan mode changes. For example, an application can be notified when the device has ended discoverability.
-Requires BLUETOOTH
-	 */
 	public static final String ACTION_REQUEST_DISCOVERABLE = "dk.android.bluetooth.adapter.action.REQUEST_DISCOVERABLE";
-	/**
-	 * Activity Action: Show a system activity that allows the user to turn on Bluetooth.
-This system activity will return once Bluetooth has completed turning on, or the user has decided not to turn Bluetooth on.
-Notification of the result of this activity is posted using the onActivityResult(int, int, Intent) callback. The resultCode will be RESULT_OK if Bluetooth has been turned on or RESULT_CANCELED if the user has rejected the request or an error has occurred.
-Applications can also listen for ACTION_STATE_CHANGED for global notification whenever Bluetooth is turned on or off.
-Requires BLUETOOTH
-	 */
 	public static final String ACTION_REQUEST_ENABLE = "dk.android.bluetooth.adapter.action.REQUEST_ENABLE";
-	/**
-	 * Broadcast Action: Indicates the Bluetooth scan mode of the local Adapter has changed.
-Always contains the extra fields EXTRA_SCAN_MODE and EXTRA_PREVIOUS_SCAN_MODE containing the new and old scan modes respectively.
-Requires BLUETOOTH
-	 */
 	public static final String ACTION_SCAN_MODE_CHANGED = "dk.android.bluetooth.adapter.action.SCAN_MODE_CHANGED";
-	/**
-	 * Broadcast Action: The state of the local Bluetooth adapter has been changed.
-For example, Bluetooth has been turned on or off.
-Always contains the extra fields EXTRA_STATE and EXTRA_PREVIOUS_STATE containing the new and old states respectively.
-Requires BLUETOOTH to receive.
-	 */
 	public static final String ACTION_STATE_CHANGED = "dk.android.bluetooth.adapter.action.STATE_CHANGED";
-	/**
-	 * Sentinel error value for this class. Guaranteed to not equal any other integer constant in this class. Provided as a convenience for functions that require a sentinel error value, for example:
-Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
-	 */
 	public static final int ERROR = -2147483648;
-	/**
-	 * Used as an optional int extra field in ACTION_REQUEST_DISCOVERABLE intents to request a specific duration for discoverability in seconds. The current default is 120 seconds, and requests over 300 seconds will be capped. These values could change.
-	 */
 	public static final String EXTRA_DISCOVERABLE_DURATION = "dk.android.bluetooth.adapter.extra.DISCOVERABLE_DURATION";
-	/**
-	 * Used as a String extra field in ACTION_LOCAL_NAME_CHANGED intents to request the local Bluetooth name.
-	 */
 	public static final String EXTRA_LOCAL_NAME = "dk.android.bluetooth.adapter.extra.LOCAL_NAME";
-	/**
-	 * Used as an int extra field in ACTION_SCAN_MODE_CHANGED intents to request the previous scan mode. Possible values are: SCAN_MODE_NONE, SCAN_MODE_CONNECTABLE, SCAN_MODE_CONNECTABLE_DISCOVERABLE,
-	 */
 	public static final String EXTRA_PREVIOUS_SCAN_MODE = "dk.android.bluetooth.adapter.extra.PREVIOUS_SCAN_MODE";
-	/**
-	 * Used as an int extra field in ACTION_STATE_CHANGED intents to request the previous power state. Possible values are: STATE_OFF, STATE_TURNING_ON, STATE_ON, STATE_TURNING_OFF,
-	 */
 	public static final String EXTRA_PREVIOUS_STATE = "dk.android.bluetooth.adapter.extra.PREVIOUS_STATE";
-	/**
-	 * Used as an int extra field in ACTION_SCAN_MODE_CHANGED intents to request the current scan mode. Possible values are: SCAN_MODE_NONE, SCAN_MODE_CONNECTABLE, SCAN_MODE_CONNECTABLE_DISCOVERABLE,
-	 */
 	public static final String EXTRA_SCAN_MODE = "dk.android.bluetooth.adapter.extra.SCAN_MODE";
-	/**
-	 * Used as an int extra field in ACTION_STATE_CHANGED intents to request the current power state. Possible values are: STATE_OFF, STATE_TURNING_ON, STATE_ON, STATE_TURNING_OFF,
-	 */
 	public static final String EXTRA_STATE = "dk.android.bluetooth.adapter.extra.STATE";
 
 	public static final int SCAN_MODE_CONNECTABLE = 21;
@@ -96,70 +35,56 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 	public static final int STATE_TURNING_OFF = 13;
 	public static final int STATE_TURNING_ON = 11;
 	
-	static final BluetoothAdapter def = new BluetoothAdapter();
-	
-	static Context context = null;
-	public static void SetContext(Context c) {
-		if(context != null) return;
-		context=c;
-		try {
-			FileInputStream fis = c.openFileInput("BTADDR.TXT");
-			byte[] buf = new byte[100];
-			int read = fis.read(buf);
-			String addr = new String(buf,0,read);
-			def.addr = addr;
-			Log.i("BTADAPTEREMULATOR", "read address: "+def.addr);
-			return;
-		} catch(Exception e) {
-			Log.i("BTADAPTEREMULATOR", "file was not found", e);
-		}
-		try {
-			FileOutputStream fos = c.openFileOutput("BTADDR.TXT", Context.MODE_PRIVATE);
-			OutputStreamWriter outw = new OutputStreamWriter(fos);
-			outw.write(def.getAddress());
-			outw.flush();
-			outw.close();
-			Log.i("BTADAPTEREMULATOR", "wrote address: "+def.addr);
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e("BTADAPTEREMULATOR", "cannot write BTADDR.TXT file!", e);
-		}
-	}
-	
-	String name = "local";
-	String addr = null;
-	boolean enabled = false;
-	boolean discovering = false;
-	Set<BluetoothDevice> bonded = new HashSet<BluetoothDevice>();
-	int scanMode = android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-	
+	private static final BluetoothAdapter defaultAdapter = new BluetoothAdapter();
+	private static Context context = null;
+
 	public static boolean checkBluetoothAddress(String addr) {
 		return android.bluetooth.BluetoothAdapter.checkBluetoothAddress(addr);
 	}
 	public static BluetoothAdapter getDefaultAdapter() {
-		return def;
+		return defaultAdapter;
 	}
-	
-	private BluetoothAdapter() {
-		this.addr = getAddress();
+
+	public static void setContext(Context c) {
+		if(context != null) return;
+		context=c;
 	}
-	
+
+	private Emulator emulator = Emulator.instance();
+	private boolean discovering = false;
+	private Set<BluetoothDevice> bonded = new HashSet<BluetoothDevice>();
+	private int scanMode = android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+
+	public boolean disable(){
+		return emulator.disable();
+	}
+
+	public boolean enable(){
+		return emulator.enable();
+	}
+
+	public String getAddress(){
+		return emulator.getAddress();
+	}
+
+	public String getName(){
+		return emulator.getName();
+	}
+
+	public boolean isEnabled() {
+		return emulator.isEnabled();
+	}
+
+	public boolean setName(String name) {
+		return emulator.setName(name);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
 	public boolean cancelDiscovery() {
 		return false;
 	}
-	public boolean disable(){
-		return setEnabled(false);
-	}
-	public boolean enable(){
-		return setEnabled(true);
-	}
-	public String getAddress(){
-		/**
-		 * TODO: get a decent random address!
-		 */
-		if(addr==null){addr=createRandomAddress();}
-		return addr;
-	}
+
 	public Set<BluetoothDevice> getBondedDevices(){
 		Set<BluetoothDevice> out = null;
 		synchronized(this.bonded) {
@@ -167,9 +92,7 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 		}
 		return out;
 	}
-	public String getName(){
-		return name;
-	}
+
 	public BluetoothDevice getRemoteDevice(String address) {
 		if(!checkBluetoothAddress(address))
 			throw new IllegalArgumentException("wrong device address");
@@ -180,9 +103,6 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 	}
 	public boolean isDiscovering() {
 		return discovering;
-	}
-	public boolean isEnabled() {
-		return enabled;
 	}
 	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid)
 	throws IOException {
@@ -196,10 +116,7 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 		
 		return out;
 	}
-	public boolean setName(String name) {
-		this.name = name;
-		return true;
-	}
+
 	public boolean startDiscovery() {
 		if(discovering)
 			return false;
@@ -225,47 +142,9 @@ Intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
 		emulator.asyncDiscovery(wd);
 		return true;
 	}
-
-	
-	
 	
 	/////////////////////////////
-       private Emulator emulator = Emulator.instance();
-	private boolean setEnabled(boolean enable) {
-		Log.d("BTADAPTEREMULATOR", "setEnabled->"+enable+", was->"+enabled);
-		if(enable){// && !enabled) {
-			Log.d("BTADAPTEREMULATOR", "joining...");
-			emulator.join();
-			
-		} else if(/*enabled && */!enable) {
-			Log.d("BTADAPTEREMULATOR", "leaving...");
-			emulator.leave();
-		}
-		this.enabled = enable;
-		return true;
-	}
-	private String createRandomAddress() {
-		//sample: 00:11:22:AA:BB:CC
-		StringBuffer sb = new StringBuffer();
-		Random r = new Random();
-		boolean f = true;
-		for(int i=0;i<3;i++) {
-			if(f){f=!f;}else{sb.append(":");}
-			int n = 0;
-			do {
-				n = r.nextInt(99);
-			} while(n<10);
-			sb.append(n);
-		}
-		String chars = "ABCDEF";
-		for(int i=0;i<3;i++) {
-			sb.append(":");
-			sb.append( chars.charAt( r.nextInt(6) ) );
-			sb.append( chars.charAt( r.nextInt(6) ) );
-		}
-		
-		return sb.toString();
-	}
+
 	static int _curPort = 8123;
 	private int choosePort() {
 		_curPort++;

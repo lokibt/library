@@ -13,8 +13,8 @@ import dk.itu.android.bluetooth.emulation.Emulator;
 
 public class Join extends BaseCommand {
 
-       public Join() {
-		super(CommandType.JOIN);
+	public Join() {
+       	super(CommandType.JOIN);
 	}
 
 	@Override

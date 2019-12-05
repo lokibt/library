@@ -46,7 +46,7 @@ public class Main extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-    	BluetoothAdapter.SetContext(this);
+    	BluetoothAdapter.setContext(this);
         bta = BluetoothAdapter.getDefaultAdapter();
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
                filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
