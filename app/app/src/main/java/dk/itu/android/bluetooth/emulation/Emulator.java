@@ -14,13 +14,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import dk.itu.android.bluetooth.BluetoothAdapter;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 import dk.itu.android.bluetooth.emulation.cmd.Join;
 import dk.itu.android.bluetooth.emulation.cmd.Leave;
 import dk.itu.android.bluetooth.emulation.cmd.ModifyService;
+import dk.itu.android.bluetooth.emulation.cmd.CommandListener;
 
-public class Emulator {
+public class Emulator implements CommandListener {
 	private static final String TAG = "BTEMULATOR";
 
 	private static Emulator _instance = null;
@@ -60,7 +63,7 @@ public class Emulator {
 		if (this.address == null) {
 			try {
 				FileInputStream fis = this.context.openFileInput("BTADDR.TXT");
-				Log.d(TAG, "reading Bluetooth address: " + this.address);
+				Log.d(TAG, "reading Bluetooth address");
 				byte[] buf = new byte[100];
 				int read = fis.read(buf);
 				this.address = new String(buf, 0, read);
@@ -68,8 +71,8 @@ public class Emulator {
 			catch (Exception readException) {
 				Log.d(TAG, "error while reading Bluetooth address", readException);
 				try {
+					Log.d(TAG, "saving Bluetooth address");
 					String addr = generateAddress();
-					Log.d(TAG, "saving Bluetooth address: " + this.address);
 					FileOutputStream fos = this.context.openFileOutput("BTADDR.TXT", Context.MODE_PRIVATE);
 					OutputStreamWriter outw = new OutputStreamWriter(fos);
 					outw.write(addr);
@@ -81,6 +84,7 @@ public class Emulator {
 					Log.e(TAG, "error while writing Bluetooth address", writeException);
 				}
 			}
+			Log.d(TAG, "Bluetooth address is: " + this.address);
 		}
 		return this.address;
 	}
@@ -113,22 +117,29 @@ public class Emulator {
 		return true;
 	}
 
-
-	public void sendBroadcast(String action) {
-		try {
-			Log.d(TAG, "sendBroadcast in appContext: " + this.context);
-			Intent intent = new Intent();
-			intent.setAction(action);
-			this.context.sendBroadcast(intent);
-		}
-		catch (Exception e) {
-			Log.e(TAG, "", e);
-		}
+	@Override
+	public void onJoinReturned(String name) {
+		setName(name);
+		sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+		finishController(Activity.RESULT_OK);
 	}
 
-	public boolean finishController(int result) {
+	@Override
+	public void onLeaveReturned() {
+		sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+	}
+
+
+	private void sendBroadcast(String action) {
+		Log.d(TAG, "sending broadcast using application context: " + this.context);
+		Intent intent = new Intent();
+		intent.setAction(action);
+		this.context.sendBroadcast(intent);
+	}
+
+	private boolean finishController(int result) {
 		if (this.ctrlActivity == null) {
-			Log.d(TAG, "trying to finish controller, but no activity set");
+			Log.e(TAG, "trying to finish controller activity, but it is not set");
 			return false;
 		}
 		this.ctrlActivity.setResult(result);

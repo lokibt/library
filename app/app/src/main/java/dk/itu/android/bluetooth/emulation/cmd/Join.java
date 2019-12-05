@@ -24,9 +24,7 @@ public class Join extends BaseCommand {
 		String p = br.readLine();
 		String name = "emulator-" + p;
 		name = name.trim();
-		dk.itu.android.bluetooth.BluetoothAdapter.getDefaultAdapter().setName(name);
-               emulator.sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
-               emulator.finishController(Activity.RESULT_OK);
+		emulator.onJoinReturned(name);
 	}
 
 	@Override

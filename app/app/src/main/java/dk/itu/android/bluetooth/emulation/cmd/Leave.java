@@ -15,8 +15,8 @@ public class Leave extends NoParamsBaseCommand {
 
 	@Override
 	protected void readResponse(InputStream in) throws IOException {
-               //don't care about response data
-               emulator.sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+		//don't care about response data
+		emulator.onLeaveReturned();
 	}
 
 	@Override
