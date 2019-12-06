@@ -2,14 +2,10 @@ package dk.itu.android.bluetooth;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import android.content.Context;
-import android.content.Intent;
 import dk.itu.android.bluetooth.emulation.Emulator;
-import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 
 public class BluetoothAdapter {
 	public static final String ACTION_DISCOVERY_FINISHED = "dk.android.bluetooth.adapter.action.DISCOVERY_FINISHED";
@@ -26,7 +22,6 @@ public class BluetoothAdapter {
 	public static final String EXTRA_PREVIOUS_STATE = "dk.android.bluetooth.adapter.extra.PREVIOUS_STATE";
 	public static final String EXTRA_SCAN_MODE = "dk.android.bluetooth.adapter.extra.SCAN_MODE";
 	public static final String EXTRA_STATE = "dk.android.bluetooth.adapter.extra.STATE";
-
 	public static final int SCAN_MODE_CONNECTABLE = 21;
 	public static final int SCAN_MODE_CONNECTABLE_DISCOVERABLE = 23;
 	public static final int SCAN_MODE_NONE = 20;
@@ -35,25 +30,26 @@ public class BluetoothAdapter {
 	public static final int STATE_TURNING_OFF = 13;
 	public static final int STATE_TURNING_ON = 11;
 	
-	private static final BluetoothAdapter defaultAdapter = new BluetoothAdapter();
-	private static Context context = null;
+	private static BluetoothAdapter defaultAdapter = null;
 
 	public static boolean checkBluetoothAddress(String addr) {
 		return android.bluetooth.BluetoothAdapter.checkBluetoothAddress(addr);
 	}
+
 	public static BluetoothAdapter getDefaultAdapter() {
+		if (defaultAdapter == null) {
+			defaultAdapter = new BluetoothAdapter();
+		}
 		return defaultAdapter;
 	}
 
-	public static void setContext(Context c) {
-		if(context != null) return;
-		context=c;
-	}
-
-	private Emulator emulator = Emulator.instance();
-	private boolean discovering = false;
+	private Emulator emulator = Emulator.getInstance();
 	private Set<BluetoothDevice> bonded = new HashSet<BluetoothDevice>();
 	private int scanMode = android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+
+	public boolean cancelDiscovery() {
+		return emulator.cancelDiscovery();
+	}
 
 	public boolean disable(){
 		return emulator.disable();
@@ -75,6 +71,10 @@ public class BluetoothAdapter {
 		return emulator.getState();
 	}
 
+	public boolean isDiscovering() {
+		return emulator.isDiscovering();
+	}
+
 	public boolean isEnabled() {
 		return emulator.isEnabled();
 	}
@@ -83,11 +83,11 @@ public class BluetoothAdapter {
 		return emulator.setName(name);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public boolean cancelDiscovery() {
-		return false;
+	public boolean startDiscovery() {
+		return emulator.startDiscovery();
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public Set<BluetoothDevice> getBondedDevices(){
 		Set<BluetoothDevice> out = null;
@@ -105,9 +105,7 @@ public class BluetoothAdapter {
 	public int getScanMode() {
 		return scanMode;
 	}
-	public boolean isDiscovering() {
-		return discovering;
-	}
+
 	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid)
 	throws IOException {
 		
@@ -119,32 +117,6 @@ public class BluetoothAdapter {
 //		emulator.addService(uuid.toString(), port);
 		
 		return out;
-	}
-
-	public boolean startDiscovery() {
-		if(discovering)
-			return false;
-		
-		discovering = true;
-		Discovery.WithDevices wd = new Discovery.WithDevices() {
-			@Override
-			public void devices(List<BluetoothDevice> devices) {
-				Intent intent = new Intent(ACTION_DISCOVERY_STARTED);
-				context.sendBroadcast(intent);
-				for(BluetoothDevice d : devices) {
-					intent = new Intent();
-					intent.setAction(BluetoothDevice.ACTION_FOUND);
-					intent.putExtra(BluetoothDevice.EXTRA_DEVICE, d);
-					intent.putExtra(BluetoothDevice.EXTRA_CLASS, d.getBluetoothClass());
-					context.sendBroadcast(intent);
-				}
-				intent = new Intent(ACTION_DISCOVERY_FINISHED);
-				context.sendBroadcast(intent);
-				discovering = false;
-			}
-		};
-		emulator.asyncDiscovery(wd);
-		return true;
 	}
 	
 	/////////////////////////////

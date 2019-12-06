@@ -59,8 +59,21 @@ public class Main extends Activity {
 							break;
 						}
 					break;
+				case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+					Log.d(TAG, "Bluetooth discovery started");
+					break;
+				case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+					Log.d(TAG, "Bluetooth discovery finished");
+					break;
+				case BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED:
+					Log.d(TAG, "Bluetooth name changed to: " + intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME));
+					break;
 				case BluetoothDevice.ACTION_FOUND:
-					addDevice((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+					Log.d(TAG, "Bluetooth device found");
+					//addDevice((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+					break;
+				default:
+					Log.e(TAG, "Unknown Bluetooth action: " + action);
 					break;
 			}
 		}
@@ -76,11 +89,13 @@ public class Main extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-    	BluetoothAdapter.setContext(this);
         bta = BluetoothAdapter.getDefaultAdapter();
 
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-               filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+		IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+		filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
+		filter.addAction(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(mReceiver, filter);
 
 		devices = (ListView)findViewById(R.id.Devices);
@@ -96,7 +111,7 @@ public class Main extends Activity {
 		enableBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i(TAG, "Enabling btemulator...");
+				Log.i(TAG, "Enabling emulator...");
 				// bta.enable();
 				if(!bta.isEnabled()) {
 					Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -108,7 +123,7 @@ public class Main extends Activity {
 		disableBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.i("BTEMU", "Disabling btemulator...");
+				Log.i(TAG, "Disabling emulator...");
 				bta.disable();
 			}
 		});
@@ -116,7 +131,10 @@ public class Main extends Activity {
 		discoveryBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startDiscovery();
+				Log.i(TAG, "Starting discovery...");
+				list.clear();
+				adapter.notifyDataSetChanged();
+				bta.startDiscovery();
 			}
 		});
 
@@ -133,12 +151,7 @@ public class Main extends Activity {
 				startClient();
 			}
 		});
-		
-//		devices.setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//			}
-//		});
+
 		devices.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
@@ -166,18 +179,6 @@ public class Main extends Activity {
 			}
 		}
 	}
-
-    private void startDiscovery() {
-    	Log.i("BTEMU", "starting discovery...");
-    	clearDevices();
-    	bta.startDiscovery();
-    }
-    
-    private void clearDevices(){
-    	Log.i("BTEMU", "clearing device list");
-    	list.clear();
-    	adapter.notifyDataSetChanged();
-    }
 
     BluetoothDevice other = null;
 
@@ -253,20 +254,5 @@ public class Main extends Activity {
     		}
     	});
     	t.start();
-//    	try {
-//			
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//    	synchronized(lock) {
-//    		try {
-//    			lock.wait();
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//        	
-//		}
     }
 }

@@ -9,28 +9,16 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import dk.itu.android.bluetooth.BluetoothDevice;
 
 public class Discovery extends NoParamsBaseCommand {
-	public interface WithDevices {
-		public void devices( List<BluetoothDevice> devices );
-	}
-	
-	@SuppressWarnings("unchecked")
-	List<dk.itu.android.bluetooth.BluetoothDevice> devices = new ArrayList();
-	WithDevices withDevices = null;
-	
+	final static String TAG = "BTCMD_DISCOVERY";
+
 	public Discovery() {
 		super(CommandType.DISCOVERY);
-	}
-	public void setWithDevices(WithDevices wd) {
-		this.withDevices = wd;
-	}
-	
-	public List<dk.itu.android.bluetooth.BluetoothDevice> getDevices() {
-		return devices;
 	}
 	
 //	@Override
@@ -58,43 +46,27 @@ public class Discovery extends NoParamsBaseCommand {
 
 	@Override
 	protected void readResponse(InputStream in) throws IOException {
-		//devices are:
-		//bt.addr|ip.addr|uuid<>port|uuid<>port...\r\n
+		ArrayList<BluetoothDevice> devices = new ArrayList<>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		String line = null;
-		do {
-			line = br.readLine();
-			Log.i("DISCOVERY_CMD", "device: " + line);
-			if(line==null) break;
-			
-			String[] parts = line.trim().split("--");
-			dk.itu.android.bluetooth.BluetoothDevice d = new BluetoothDevice(parts[0], parts[1],parts[2]);
-			
-			String log = "";
-			int idx = 0;
-			for(String part : parts) {
-				log += idx + ". " + part + "\n";
-			}
-			Log.i("DISCOVERY_CMD",log);
-			
-			if(parts.length>3) {
-				if(parts[3].length()>0) {
-					String[] sParts = parts[3].split("<><>");
-					Log.i("DISCOVERY_CMD","services: " + parts[3]);
-					for(String p : sParts) {
-						Log.i("DISCOVERY_CMD",p);
-						String[] s = p.split("<>");
-						Log.i("DISCOVERY_CMD","Split service length: " + s.length);
-						d.addService(s[0], Integer.parseInt(s[1]));
-					}
+		String line = br.readLine();
+		while(line != null) {
+			Log.d(TAG, "line: " + line);
+			String[] deviceInfo = line.trim().split("--");
+			Log.d(TAG, "deviceInfo: " + TextUtils.join(", ", deviceInfo));
+			BluetoothDevice device = new BluetoothDevice(deviceInfo[0], deviceInfo[1], emulator.generateName(deviceInfo[0]));
+			// Adding provided services
+			if (deviceInfo.length > 2) {
+				String[] serviceInfoList = deviceInfo[2].split("<><>");
+				for(int i=0; i<serviceInfoList.length; i++) {
+					String[] serviceInfo = serviceInfoList[i].split("<>");
+					Log.d(TAG, "serviceInfo: " + TextUtils.join(", ", serviceInfo));
+					device.addService(serviceInfo[0], Integer.parseInt(serviceInfo[1]));
 				}
 			}
-			devices.add(d);
-		} while(line != null);
-		
-		if(withDevices != null) {
-			withDevices.devices(devices);
+			devices.add(device);
+			line = br.readLine();
 		}
+		emulator.onDiscoveryReturned(devices);
 	}
 
 	@Override

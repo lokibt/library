@@ -13,9 +13,8 @@ public class BTEnableControl extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         //setContentView(R.layout.ctrl);
-        
-        BluetoothAdapter.setContext(this);
-		Emulator.instance().setControllerActivity(this);
+		
+		Emulator.getInstance().setControllerActivity(this);
 	}
 
 	@Override

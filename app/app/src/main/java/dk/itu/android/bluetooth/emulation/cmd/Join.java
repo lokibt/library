@@ -1,6 +1,7 @@
 package dk.itu.android.bluetooth.emulation.cmd;
 
 import android.app.Activity;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,10 +22,7 @@ public class Join extends BaseCommand {
 	protected void readResponse(InputStream in) throws IOException {
 		//get the emulator port number
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		String p = br.readLine();
-		String name = "emulator-" + p;
-		name = name.trim();
-		emulator.onJoinReturned(name);
+		emulator.onJoinReturned();
 	}
 
 	@Override

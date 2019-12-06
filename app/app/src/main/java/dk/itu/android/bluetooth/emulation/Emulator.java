@@ -3,17 +3,13 @@ package dk.itu.android.bluetooth.emulation;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BlendMode;
+import android.os.Bundle;
 import android.util.Log;
 
 import dk.itu.android.bluetooth.BluetoothAdapter;
@@ -27,37 +23,73 @@ import dk.itu.android.bluetooth.emulation.cmd.CommandListener;
 public class Emulator implements CommandListener {
 	private static final String TAG = "BTEMULATOR";
 
-	private static Emulator _instance = null;
+	private static Emulator instance = null;
 
-	public static Emulator instance() {
-		if (_instance == null) {
+	public static Emulator getInstance() {
+		if (instance == null) {
 			try {
 				// Getting application context via reflection
 				// https://stackoverflow.com/questions/2002288/static-way-to-get-context-in-android
 				Context context = (Context) Class.forName("android.app.ActivityThread")
 						.getMethod("currentApplication").invoke(null, (Object[]) null);
-				_instance = new Emulator(context);
+				instance = new Emulator(context);
 			} catch (Exception e) {
 				Log.e(TAG, "unable to get application context", e);
 			}
 		}
-		return _instance;
+		return instance;
 	}
 
+	private String address;
 	private Context context;
 	private Activity ctrlActivity = null;
-
-	private String address = null;
-	private String name = "local";
+	private ArrayList<BluetoothDevice> devices;
+	private boolean discovering = false;
+	private String name;
 	private int state = BluetoothAdapter.STATE_OFF;
 
 	Emulator(Context context) {
 		this.context = context;
+		// Generating a name will also set the address
+		this.name = generateName();
 	}
 
-	public void setControllerActivity(Activity ctrlActivity) {
-		Log.d(TAG, "setting controller activity " + ctrlActivity);
-		this.ctrlActivity = ctrlActivity;
+
+	public boolean cancelDiscovery() {
+		if (!isEnabled()) {
+			return false;
+		}
+		// TODO: Actually cancel the discovery thread
+		setDiscovering(false);
+		return true;
+	}
+
+	public boolean disable() {
+		if (this.state == BluetoothAdapter.STATE_OFF) {
+			return false;
+		}
+		try {
+			this.setState(BluetoothAdapter.STATE_TURNING_OFF);
+			new Thread(new Leave()).start();
+			return true;
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot start Leave() thread", e);
+			return false;
+		}
+	}
+
+	public boolean enable() {
+		if (this.state == BluetoothAdapter.STATE_ON) {
+			return false;
+		}
+		try {
+			this.setState(BluetoothAdapter.STATE_TURNING_ON);
+			new Thread(new Join()).start();
+			return true;
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot start Join() thread", e);
+			return false;
+		}
 	}
 
 	public String getAddress() {
@@ -98,45 +130,50 @@ public class Emulator implements CommandListener {
 		return this.state;
 	}
 
+	public boolean isDiscovering() {
+		return this.discovering;
+	}
+
 	public boolean isEnabled() {
 		return this.state == BluetoothAdapter.STATE_ON;
 	}
 
-	public boolean disable() {
-		if (this.state == BluetoothAdapter.STATE_OFF) {
-			return false;
-		}
-		this.setState(BluetoothAdapter.STATE_TURNING_OFF);
-		leave();
-		return true;
-	}
-
-
-	public boolean enable() {
-		if (this.state == BluetoothAdapter.STATE_ON) {
-			return false;
-		}
-		this.setState(BluetoothAdapter.STATE_TURNING_ON);
-		join();
-		return true;
+	public void setControllerActivity(Activity ctrlActivity) {
+		Log.d(TAG, "setting controller activity " + ctrlActivity);
+		this.ctrlActivity = ctrlActivity;
 	}
 
 	public boolean setName(String name) {
-		this.name = name;
+		if (!isEnabled()) {
+			return false;
+		}
+		if (!this.name.equals(name)) {
+			this.name = name;
+			Bundle extras = new Bundle();
+			extras.putString(BluetoothAdapter.EXTRA_LOCAL_NAME, name);
+			sendBroadcast(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED, extras);
+		}
 		return true;
 	}
 
-	public boolean setState(int state) {
-		this.state = state;
-		sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
-		return true;
+	public boolean startDiscovery() {
+		if(!isEnabled()) {
+			return false;
+		}
+		try {
+			setDiscovering(true);
+			new Thread(new Discovery()).start();
+			return true;
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot start Discovery() thread", e);
+			return false;
+		}
 	}
 
 	@Override
-	public void onJoinReturned(String name) {
-		this.setName(name);
+	public void onJoinReturned() {
 		this.setState(BluetoothAdapter.STATE_ON);
-		finishController(Activity.RESULT_OK);
+		sendResult(Activity.RESULT_OK);
 	}
 
 	@Override
@@ -144,26 +181,24 @@ public class Emulator implements CommandListener {
 		this.setState(BluetoothAdapter.STATE_OFF);
 	}
 
-
-	private void sendBroadcast(String action) {
-		Log.v(TAG, "sending broadcast using application context: " + this.context);
-		Intent intent = new Intent();
-		intent.setAction(action);
-		this.context.sendBroadcast(intent);
-	}
-
-	private boolean finishController(int result) {
-		if (this.ctrlActivity == null) {
-			Log.e(TAG, "trying to finish controller activity, but it is not set");
-			return false;
-		}
-		this.ctrlActivity.setResult(result);
-		this.ctrlActivity.finish();
-		this.ctrlActivity = null;
-		return true;
+	@Override
+	public void onDiscoveryReturned(ArrayList<BluetoothDevice> devices) {
+		Log.d(TAG, "Received Bluetooth devices:");
+		Log.d(TAG, devices.toString());
+		this.devices = devices;
+		setDiscovering(false);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private String generateName() {
+		return generateName(getAddress());
+	}
+
+	// should be private once device instaces are created on demand
+	public String generateName(String address) {
+		return "emulator-" + address.replace(":", "");
+	}
 
 	private String generateAddress() {
 		Log.d(TAG, "generating Bluetooth address");
@@ -191,63 +226,54 @@ public class Emulator implements CommandListener {
 		}
 		return sb.toString();
 	}
-	
-	public void join() {
-		try {
-			new Thread(new Join()).start();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e(TAG, "cannot join", e);
+
+	private void sendBroadcast(String action) {
+		sendBroadcast(action, null);
+	}
+
+	private void sendBroadcast(String action, Bundle extras) {
+		Log.v(TAG, "Sending broadcast: " + action);
+		Intent intent = new Intent();
+		intent.setAction(action);
+		if (extras != null) {
+			intent.putExtras(extras);
+		}
+		this.context.sendBroadcast(intent);
+	}
+
+	private void sendResult(int result) {
+		Log.v(TAG, "Sending result: " + result);
+		if (this.ctrlActivity == null) {
+			Log.e(TAG, "trying to finish controller activity, but it is not set");
+		}
+		this.ctrlActivity.setResult(result);
+		this.ctrlActivity.finish();
+		this.ctrlActivity = null;
+	}
+
+	private void setDiscovering(boolean discovering) {
+		if (this.discovering != discovering) {
+			this.discovering = discovering;
+			if (discovering) {
+				sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+			} else {
+				sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+			}
 		}
 	}
-	public void leave() {
-		try {
-			new Thread(new Leave()).start();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e(TAG, "cannot leave", e);
+
+	private void setState(int state) {
+		if (this.state != state) {
+			this.state = state;
+			sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
 		}
 	}
-	
-	public void asyncDiscovery( Discovery.WithDevices wd ) {
-		Discovery d;
-		try {
-			d = new Discovery();
-			d.setWithDevices(wd);
-			new Thread(d).start();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e(TAG, "cannot async discovery", e);
-		}
-	}
-	
-	public void discovery( Discovery.WithDevices wd ) {
-		Discovery d;
-		try {
-			d = new Discovery();
-			d.setWithDevices(wd);
-			new Thread(d).start();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e(TAG, "cannot discovery", e);
-		}
-	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	public BluetoothDevice lookupBT( String btAddr ) {
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-		FutureTask<List<BluetoothDevice>> future = 
-			new FutureTask<List<BluetoothDevice>>(new Callable<List<BluetoothDevice>>(){
-			@Override
-			public List<BluetoothDevice> call() throws Exception {
-				Discovery d = new Discovery();
-				new Thread(d).start();
-				return d.getDevices();
-			}
-		});
-		executor.execute(future);
 		try {
-			List<BluetoothDevice> devices = future.get();
-			for(BluetoothDevice d : devices) {
+			for(BluetoothDevice d : this.devices) {
 				Log.i(TAG, "check btaddr: "+d.getAddr() + " == " + btAddr + "?");
 				if(d.getAddr().equals(btAddr)) {
 					Log.i(TAG, "btAddr match, return device");

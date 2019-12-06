@@ -14,7 +14,7 @@ public abstract class BaseCommand implements Runnable {
 	static final String DEV_MACHINE_IP = "10.0.2.2";
 	static final int DISCOVERY_SERVICE_PORT = 8199;
        
-       protected Emulator emulator = Emulator.instance();
+       protected Emulator emulator = Emulator.getInstance();
 
 	CommandType type;
 	Socket socket;
