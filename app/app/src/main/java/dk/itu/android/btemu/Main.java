@@ -69,8 +69,9 @@ public class Main extends Activity {
 					Log.d(TAG, "Bluetooth name changed to: " + intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME));
 					break;
 				case BluetoothDevice.ACTION_FOUND:
-					Log.d(TAG, "Bluetooth device found");
-					//addDevice((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+					BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+					Log.i(TAG, "Bluetooth device found: " + device);
+					addDevice(device);
 					break;
 				default:
 					Log.e(TAG, "Unknown Bluetooth action: " + action);

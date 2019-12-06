@@ -11,25 +11,29 @@ import android.util.Log;
 import dk.itu.android.bluetooth.emulation.Connector;
 
 public class BluetoothDevice implements Parcelable {
+	private static final String TAG = "BTDEVICE";
 	
 	public static Parcelable.Creator<BluetoothDevice> CREATOR = new Parcelable.Creator<BluetoothDevice>() {
 		@Override
 		public BluetoothDevice createFromParcel(Parcel source) {
-			BluetoothDevice out = new BluetoothDevice();
-			out.addr = source.readString();
-			out.tcpAddr = source.readString();
-			out.name = source.readString();
+			BluetoothDevice device = new BluetoothDevice();
+			device.addr = source.readString();
+			device.tcpAddr = source.readString();
+			device.name = source.readString();
+			device.services = new ArrayList<Connector>();
 			Parcelable[] tmp = source.readParcelableArray(BluetoothDevice.class.getClassLoader());
 			for(Parcelable s : tmp) {
-				out.services.add((Connector)s);
+				device.services.add((Connector)s);
 			}
-			return out;
+			return device;
 		}
+
 		@Override
 		public BluetoothDevice[] newArray(int size) {
 			return new BluetoothDevice[size];
 		}
 	};
+
 	public void writeToParcel(Parcel out, int flags) {
 		out.writeString(addr);
 		out.writeString(tcpAddr);
@@ -37,7 +41,6 @@ public class BluetoothDevice implements Parcelable {
 		out.writeParcelableArray(services.toArray(new Connector[]{}), 0);
 	}
 
-	
 	//constants
 	public static final String ACTION_ACL_CONNECTED = "dk.android.bluetooth.device.action.ACL_CONNECTED";
 	public static final String ACTION_ACL_DISCONNECGTED = "dk.android.bluetooth.device.action.ACL_DISCONNECTED";
@@ -57,9 +60,7 @@ public class BluetoothDevice implements Parcelable {
 	public static final int BOND_BONDING = 11;
 	public static final int BOND_NONE = 10;
 	public static final int ERROR = 0x80000000;
-	//
 
-	//
 	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) throws IOException {
 		String uuids = uuid.toString();
 		for(Connector s : services) {
@@ -89,62 +90,12 @@ public class BluetoothDevice implements Parcelable {
 		return addr.hashCode();
 	}
 	public String toString() {
-		return "BluetoothDevice " + addr;
+		return "BluetoothDevice " + addr + ", " + name + " -> " + tcpAddr;
 	}
-	//
-	
-	BluetoothClass btClass;
-	String addr;
-	String tcpAddr;
-	String name;
-	List<Connector> services;
-	
-	/**
-	 * THIS IS NOT PART OF THE ANDROID PLATFORM, IGNORE THIS METHOD!
-	 * @param uuid
-	 * @param port
-	 */
-	public BluetoothDevice(String btAddr, String tcpAddr, String name) {
-		this.addr = btAddr;
-		this.tcpAddr = tcpAddr;
-		this.name = name;
-		this.services = new ArrayList<Connector>();
-		this.btClass = new BluetoothClass(
-			android.bluetooth.BluetoothClass.Device.PHONE_SMART,
-			android.bluetooth.BluetoothClass.Device.Major.PHONE,
-			android.bluetooth.BluetoothClass.Service.NETWORKING);
-	}
-	private BluetoothDevice() {
-		this.services = new ArrayList<Connector>();
-		this.btClass = new BluetoothClass(
-			android.bluetooth.BluetoothClass.Device.PHONE_SMART,
-			android.bluetooth.BluetoothClass.Device.Major.PHONE,
-			android.bluetooth.BluetoothClass.Service.NETWORKING);
-	}
-	
-	/**
-	 * THIS IS NOT PART OF THE ANDROID PLATFORM, IGNORE THIS METHOD!
-	 * @param uuid
-	 * @param port
-	 */
-	public void addService(String uuid, int port) {
-		this.services.add(new Connector(uuid,port));
-	}
-	
-	/**
-	 * THIS IS NOT PART OF THE ANDROID PLATFORM, IGNORE THIS METHOD!
-	 * @param uuid
-	 * @param port
-	 */
-	public String getAddr() {
-		return addr;
-	}
-	/**
-	 * THIS IS NOT PART OF THE ANDROID PLATFORM, IGNORE THIS METHOD!
-	 * @param uuid
-	 * @param port
-	 */
-	public String getTcpAddr() {
-		return tcpAddr;
-	}
+
+	private BluetoothClass btClass;
+	private String addr;
+	private String tcpAddr;
+	private String name;
+	private List<Connector> services;
 }

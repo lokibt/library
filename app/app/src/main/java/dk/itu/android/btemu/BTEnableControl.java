@@ -13,7 +13,7 @@ public class BTEnableControl extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         //setContentView(R.layout.ctrl);
-		
+
 		Emulator.getInstance().setControllerActivity(this);
 	}
 

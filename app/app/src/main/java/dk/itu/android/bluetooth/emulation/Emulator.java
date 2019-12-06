@@ -4,7 +4,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Random;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
@@ -43,7 +45,7 @@ public class Emulator implements CommandListener {
 	private String address;
 	private Context context;
 	private Activity ctrlActivity = null;
-	private ArrayList<BluetoothDevice> devices;
+	private Hashtable<String, BluetoothDevice> devices;
 	private boolean discovering = false;
 	private String name;
 	private int state = BluetoothAdapter.STATE_OFF;
@@ -126,6 +128,22 @@ public class Emulator implements CommandListener {
 		return this.name;
 	}
 
+	public BluetoothDevice getRemoteDevice(String address) {
+		if(!BluetoothAdapter.checkBluetoothAddress(address)) {
+			throw new IllegalArgumentException("wrong device address");
+		}
+		BluetoothDevice device = null;
+		if (devices.containsKey(address)) {
+			device = devices.get(address);
+		}
+		else {
+			// TODO Create a device anyway
+			Log.e(TAG, "Device address not found: " + address);
+		}
+		Log.d(TAG, "Returning Bluetooth device: " + device);
+		return device;
+	}
+
 	public int getState() {
 		return this.state;
 	}
@@ -139,7 +157,7 @@ public class Emulator implements CommandListener {
 	}
 
 	public void setControllerActivity(Activity ctrlActivity) {
-		Log.d(TAG, "setting controller activity " + ctrlActivity);
+		Log.d(TAG, "etting controller activity " + ctrlActivity);
 		this.ctrlActivity = ctrlActivity;
 	}
 
@@ -182,9 +200,20 @@ public class Emulator implements CommandListener {
 	}
 
 	@Override
-	public void onDiscoveryReturned(ArrayList<BluetoothDevice> devices) {
-		Log.d(TAG, "Received Bluetooth devices:");
-		Log.d(TAG, devices.toString());
+	public void onDiscoveryReturned(Hashtable<String, BluetoothDevice> devices) {
+		if (devices.isEmpty()) {
+			Log.d(TAG, "Discovered no Bluetooth devices");
+		}
+		else {
+			Set<String> keys = devices.keySet();
+			for (String key : keys) {
+				BluetoothDevice device = devices.get(key);
+				Log.d(TAG, "Discovered device: " + device);
+				Bundle extras = new Bundle();
+				extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, device);
+				sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
+			}
+		}
 		this.devices = devices;
 		setDiscovering(false);
 	}
@@ -270,23 +299,7 @@ public class Emulator implements CommandListener {
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	public BluetoothDevice lookupBT( String btAddr ) {
-		try {
-			for(BluetoothDevice d : this.devices) {
-				Log.i(TAG, "check btaddr: "+d.getAddr() + " == " + btAddr + "?");
-				if(d.getAddr().equals(btAddr)) {
-					Log.i(TAG, "btAddr match, return device");
-					return d;
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e(TAG, "cannot retrieve btdevices", e);
-		}
-		Log.i(TAG, "btAddr " + btAddr + " not found! return null!");
-		return null;
-	}
+
 //	public BluetoothDevice lookupIP( String ipAddr ) {
 //		ExecutorService executor = Executors.newFixedThreadPool(1);
 //		FutureTask<List<BluetoothDevice>> future = 

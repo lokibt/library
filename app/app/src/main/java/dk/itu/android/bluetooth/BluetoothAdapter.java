@@ -87,6 +87,10 @@ public class BluetoothAdapter {
 		return emulator.startDiscovery();
 	}
 
+	public BluetoothDevice getRemoteDevice(String address) {
+		return emulator.getRemoteDevice(address);
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public Set<BluetoothDevice> getBondedDevices(){
@@ -97,17 +101,11 @@ public class BluetoothAdapter {
 		return out;
 	}
 
-	public BluetoothDevice getRemoteDevice(String address) {
-		if(!checkBluetoothAddress(address))
-			throw new IllegalArgumentException("wrong device address");
-		return emulator.lookupBT(address);//new BluetoothDevice(address);
-	}
 	public int getScanMode() {
 		return scanMode;
 	}
 
-	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid)
-	throws IOException {
+	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
 		
 		//chhoose a random tcp port
 		int port = choosePort();
@@ -118,8 +116,6 @@ public class BluetoothAdapter {
 		
 		return out;
 	}
-	
-	/////////////////////////////
 
 	static int _curPort = 8123;
 	private int choosePort() {

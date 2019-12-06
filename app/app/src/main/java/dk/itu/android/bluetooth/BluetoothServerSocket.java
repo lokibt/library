@@ -55,7 +55,7 @@ public class BluetoothServerSocket {
 		String btaddr = new String(buf,0,idx-1);
 		
 		Log.i(TAG, "received btaddr: " + btaddr);
-		BluetoothDevice d = emulator.lookupBT(btaddr.trim());
+		BluetoothDevice d = emulator.getRemoteDevice(btaddr.trim());
 		return new BluetoothSocket(s, d);
 	}
 	
