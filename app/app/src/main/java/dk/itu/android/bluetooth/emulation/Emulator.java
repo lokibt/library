@@ -13,6 +13,7 @@ import java.util.concurrent.FutureTask;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BlendMode;
 import android.util.Log;
 
 import dk.itu.android.bluetooth.BluetoothAdapter;
@@ -47,8 +48,8 @@ public class Emulator implements CommandListener {
 	private Activity ctrlActivity = null;
 
 	private String address = null;
-	private boolean enabled = false;
 	private String name = "local";
+	private int state = BluetoothAdapter.STATE_OFF;
 
 	Emulator(Context context) {
 		this.context = context;
@@ -93,22 +94,30 @@ public class Emulator implements CommandListener {
 		return this.name;
 	}
 
+	public int getState() {
+		return this.state;
+	}
+
 	public boolean isEnabled() {
-		return this.enabled;
+		return this.state == BluetoothAdapter.STATE_ON;
 	}
 
 	public boolean disable() {
-		Log.d(TAG, "disabling Bluetooth");
+		if (this.state == BluetoothAdapter.STATE_OFF) {
+			return false;
+		}
+		this.setState(BluetoothAdapter.STATE_TURNING_OFF);
 		leave();
-		this.enabled = false;
 		return true;
 	}
 
 
 	public boolean enable() {
-		Log.d(TAG, "enabling Bluetooth");
+		if (this.state == BluetoothAdapter.STATE_ON) {
+			return false;
+		}
+		this.setState(BluetoothAdapter.STATE_TURNING_ON);
 		join();
-		this.enabled = true;
 		return true;
 	}
 
@@ -117,21 +126,27 @@ public class Emulator implements CommandListener {
 		return true;
 	}
 
+	public boolean setState(int state) {
+		this.state = state;
+		sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+		return true;
+	}
+
 	@Override
 	public void onJoinReturned(String name) {
-		setName(name);
-		sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+		this.setName(name);
+		this.setState(BluetoothAdapter.STATE_ON);
 		finishController(Activity.RESULT_OK);
 	}
 
 	@Override
 	public void onLeaveReturned() {
-		sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+		this.setState(BluetoothAdapter.STATE_OFF);
 	}
 
 
 	private void sendBroadcast(String action) {
-		Log.d(TAG, "sending broadcast using application context: " + this.context);
+		Log.v(TAG, "sending broadcast using application context: " + this.context);
 		Intent intent = new Intent();
 		intent.setAction(action);
 		this.context.sendBroadcast(intent);

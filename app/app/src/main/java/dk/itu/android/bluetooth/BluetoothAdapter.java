@@ -71,6 +71,10 @@ public class BluetoothAdapter {
 		return emulator.getName();
 	}
 
+	public int getState(){
+		return emulator.getState();
+	}
+
 	public boolean isEnabled() {
 		return emulator.isEnabled();
 	}

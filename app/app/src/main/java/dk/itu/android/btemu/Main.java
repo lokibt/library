@@ -29,41 +29,104 @@ import dk.itu.android.bluetooth.BluetoothServerSocket;
 import dk.itu.android.bluetooth.BluetoothSocket;
 
 public class Main extends Activity {
+	static final String TAG = "BTEMU";
+	static final String ITEM_KEY = "key";
+	static int REQUEST_ENABLE_BT = 1234;
+
 	final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-                       Log.d("BTEMU_TEST", "Received broadcast action: " + action);
-			if(BluetoothDevice.ACTION_FOUND.equals(action)) {
-				addDevice( (BluetoothDevice)intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE) );
+			Log.d(TAG, "Received broadcast action: " + action);
+			switch (action) {
+				case BluetoothAdapter.ACTION_STATE_CHANGED:
+					int state = bta.getState();
+					switch (state) {
+						case BluetoothAdapter.STATE_TURNING_ON:
+							Log.d(TAG, "Bluetooth will be enabled");
+							break;
+						case BluetoothAdapter.STATE_TURNING_OFF:
+							Log.d(TAG, "Bluetooth will be disabled");
+							break;
+						case BluetoothAdapter.STATE_ON:
+							Log.d(TAG, "Bluetooth was enabled");
+							break;
+						case BluetoothAdapter.STATE_OFF:
+							Log.d(TAG, "Bluetooth was disabled");
+							break;
+						default:
+							Log.e(TAG, "Unknown Bluetooth state: " + state);
+							break;
+						}
+					break;
+				case BluetoothDevice.ACTION_FOUND:
+					addDevice((BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE));
+					break;
 			}
 		}
 	};
-	static final String ITEM_KEY = "key";
+
+	SimpleAdapter adapter;
+	List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 	ListView devices;
 	BluetoothAdapter bta;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
     	BluetoothAdapter.setContext(this);
         bta = BluetoothAdapter.getDefaultAdapter();
+
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
                filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 		registerReceiver(mReceiver, filter);
-		
+
+		devices = (ListView)findViewById(R.id.Devices);
+		adapter = new SimpleAdapter(this, list, R.layout.row, new String[]{ITEM_KEY}, new int[]{R.id.list_value});
+		this.devices.setAdapter(adapter);
+
 		Button enableBtn = (Button)findViewById(R.id.Enable);
 		Button disableBtn = (Button)findViewById(R.id.Disable);
 		Button discoveryBtn = (Button)findViewById(R.id.Discovery);
-		
 		Button serverBtn = (Button)findViewById(R.id.StartServer);
 		Button clientBtn = (Button)findViewById(R.id.StartClient);
+
+		enableBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.i(TAG, "Enabling btemulator...");
+				// bta.enable();
+				if(!bta.isEnabled()) {
+					Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+					startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+				}
+			}
+		});
+
+		disableBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.i("BTEMU", "Disabling btemulator...");
+				bta.disable();
+			}
+		});
+
+		discoveryBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startDiscovery();
+			}
+		});
+
 		serverBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				startServer();
 			}
 		});
+
 		clientBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -71,7 +134,6 @@ public class Main extends Activity {
 			}
 		});
 		
-		devices = (ListView)findViewById(R.id.Devices);
 //		devices.setOnClickListener(new View.OnClickListener() {
 //			@Override
 //			public void onClick(View v) {
@@ -86,54 +148,25 @@ public class Main extends Activity {
 				Log.i("BTEMU_TEST", "other device is: "+other);
 			}
 		});
-		
-		enableBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				enableBT();
+    }
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(requestCode == REQUEST_ENABLE_BT) {
+			switch (resultCode) {
+				case RESULT_OK:
+					Log.d(TAG, "REQUEST_ENABLE_BT returned: RESULT_OK");
+					break;
+				case RESULT_CANCELED:
+					Log.d(TAG, "REQUEST_ENABLE_BT returned: RESULT_CANCELED");
+					break;
+				default:
+					Log.e(TAG, "REQUEST_ENABLE_BT returned unknow code: " + resultCode);
+					break;
 			}
-		});
-		disableBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				disableBT();
-			}
-		});
-		discoveryBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startDiscovery();
-			}
-		});
-		
-		adapter = new SimpleAdapter(this, list, R.layout.row, new String[]{ITEM_KEY}, new int[]{R.id.list_value});
-		this.devices.setAdapter(adapter);
-    }
-    SimpleAdapter adapter;
-	List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-    
-	static int REQUEST_ENABLE_BT = 1234;
-    private void enableBT() {
-    	Log.i("BTEMU", "enabling btemulator...");
-//    		bta.enable();
-    	if(!bta.isEnabled()) {
-    		Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-    		startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    	}
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if(requestCode == REQUEST_ENABLE_BT) {
-    		//just received the results for bt enabling
-    		if(resultCode == RESULT_OK) {
-    			Log.i("BTEMU", "bluetooth was enabled!");
-    		}
-    	}
-    }
-    private void disableBT() {
-    	Log.i("BTEMU", "disabling btemulator...");
-    		bta.disable();
-    }
+		}
+	}
+
     private void startDiscovery() {
     	Log.i("BTEMU", "starting discovery...");
     	clearDevices();
@@ -145,7 +178,9 @@ public class Main extends Activity {
     	list.clear();
     	adapter.notifyDataSetChanged();
     }
+
     BluetoothDevice other = null;
+
     @SuppressWarnings("serial")
 	private void addDevice(final BluetoothDevice d) {
 //    	other = d;
@@ -181,6 +216,7 @@ public class Main extends Activity {
     		}
     	}).start();
     }
+
     String resp;
     private void setResp(String r){resp=r;}
     private void startClient() {
