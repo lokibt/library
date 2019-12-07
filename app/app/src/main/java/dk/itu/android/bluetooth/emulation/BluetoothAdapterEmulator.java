@@ -154,8 +154,8 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		return this.state == BluetoothAdapter.STATE_ON;
 	}
 
-	public void setControllerActivity(Activity ctrlActivity) {
-		Log.d(TAG, "etting controller activity " + ctrlActivity);
+	public void setActivity(Activity ctrlActivity) {
+		Log.d(TAG, "Setting controller activity " + ctrlActivity);
 		this.ctrlActivity = ctrlActivity;
 	}
 
@@ -259,7 +259,8 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	private void sendBroadcast(String action, Bundle extras) {
-		Log.v(TAG, "Sending broadcast: " + action);
+		Log.v(TAG, "Sending broadcast: " + action + "; " + extras);
+
 		Intent intent = new Intent();
 		intent.setAction(action);
 		if (extras != null) {

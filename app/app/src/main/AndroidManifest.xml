@@ -15,26 +15,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".Main"
-                  android:label="@string/app_name">
+        <activity
+			android:name=".Main"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-    	  <activity android:name=".BTEnableControl"
-    			       android:label="@string/btctrl" 
-    			       android:exported="true">
-    	      <intent-filter>
-    			      <category android:name="android.intent.category.DEFAULT"/>
-    			      <action android:name="dk.android.bluetooth.adapter.action.REQUEST_ENABLE"/>
-    		    </intent-filter>
-    		    <intent-filter>
-    			      <category android:name="android.intent.category.DEFAULT"/>
-    			      <action android:name="dk.android.bluetooth.adapter.action.REQUEST_DISCOVERABLE"/>
-    		      </intent-filter>
-    	    </activity>
+        <activity
+			android:name="dk.itu.android.bluetooth.emulation.BluetoothDialog"
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar"
+            android:excludeFromRecents="true"
+            android:exported="true">
+    	    <intent-filter>
+				<action android:name="dk.android.bluetooth.adapter.action.REQUEST_ENABLE"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+    		<intent-filter>
+    		    <category android:name="android.intent.category.DEFAULT"/>
+    		    <action android:name="dk.android.bluetooth.adapter.action.REQUEST_DISCOVERABLE"/>
+    		</intent-filter>
+		</activity>
+
     </application>
 
 </manifest>

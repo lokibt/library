@@ -40,19 +40,19 @@ public class Main extends Activity {
 			Log.d(TAG, "Received broadcast action: " + action);
 			switch (action) {
 				case BluetoothAdapter.ACTION_STATE_CHANGED:
-					int state = bta.getState();
+					int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
 					switch (state) {
 						case BluetoothAdapter.STATE_TURNING_ON:
-							Log.d(TAG, "Bluetooth will be enabled");
+							Log.d(TAG, state + ": Bluetooth will be enabled");
 							break;
 						case BluetoothAdapter.STATE_TURNING_OFF:
-							Log.d(TAG, "Bluetooth will be disabled");
+							Log.d(TAG, state + ": Bluetooth will be disabled");
 							break;
 						case BluetoothAdapter.STATE_ON:
-							Log.d(TAG, "Bluetooth was enabled");
+							Log.d(TAG, state + ": Bluetooth was enabled");
 							break;
 						case BluetoothAdapter.STATE_OFF:
-							Log.d(TAG, "Bluetooth was disabled");
+							Log.d(TAG, state + ": Bluetooth was disabled");
 							break;
 						default:
 							Log.e(TAG, "Unknown Bluetooth state: " + state);
