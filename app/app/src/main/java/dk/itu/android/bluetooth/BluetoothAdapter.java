@@ -44,8 +44,6 @@ public class BluetoothAdapter {
 	}
 
 	private BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
-	private Set<BluetoothDevice> bonded = new HashSet<BluetoothDevice>();
-	private int scanMode = android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 
 	public boolean cancelDiscovery() {
 		return emulator.cancelDiscovery();
@@ -63,8 +61,16 @@ public class BluetoothAdapter {
 		return emulator.getAddress();
 	}
 
+	public Set<BluetoothDevice> getBondedDevices(){
+		return emulator.getBondedDevices();
+	}
+
 	public String getName(){
 		return emulator.getName();
+	}
+
+	public int getScanMode(){
+		return emulator.getScanMode();
 	}
 
 	public int getState(){
@@ -93,19 +99,5 @@ public class BluetoothAdapter {
 
 	public BluetoothDevice getRemoteDevice(String address) {
 		return emulator.getRemoteDevice(address);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public Set<BluetoothDevice> getBondedDevices(){
-		Set<BluetoothDevice> out = null;
-		synchronized(this.bonded) {
-			out = new HashSet<BluetoothDevice>(bonded);
-		}
-		return out;
-	}
-
-	public int getScanMode() {
-		return scanMode;
 	}
 }

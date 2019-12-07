@@ -3,6 +3,7 @@ package dk.itu.android.bluetooth.emulation;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Set;
@@ -47,13 +48,19 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	private boolean discovering = false;
 	private String name;
 	private int state = BluetoothAdapter.STATE_OFF;
+	private Set<BluetoothDevice> bonded;
+	private int scanMode = BluetoothAdapter.SCAN_MODE_NONE;
 
 	private BluetoothAdapterEmulator(Context context) {
 		this.context = context;
+		this.bonded = new HashSet<BluetoothDevice>();
 		// Generating a name will also set the address
 		this.name = generateName();
 	}
 
+	public void addBondedDevice(BluetoothDevice device) {
+		this.bonded.add(device);
+	}
 
 	public boolean cancelDiscovery() {
 		if (!isEnabled()) {
@@ -65,31 +72,30 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public boolean disable() {
-		if (this.state == BluetoothAdapter.STATE_OFF) {
+		if (this.state == BluetoothAdapter.STATE_OFF || this.state == BluetoothAdapter.STATE_TURNING_OFF) {
 			return false;
 		}
-		try {
-			this.setState(BluetoothAdapter.STATE_TURNING_OFF);
-			new Thread(new Leave()).start();
-			return true;
-		} catch (Exception e) {
-			Log.e(TAG, "Cannot start Leave() thread", e);
-			return false;
+		setState(BluetoothAdapter.STATE_TURNING_OFF);
+		if (getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			stopDiscoverable();
+		} else {
+			onLeaveReturned();
 		}
+		return true;
 	}
 
 	public boolean enable() {
-		if (this.state == BluetoothAdapter.STATE_ON) {
+		if (this.state == BluetoothAdapter.STATE_ON || this.state == BluetoothAdapter.STATE_TURNING_OFF) {
 			return false;
 		}
-		try {
-			this.setState(BluetoothAdapter.STATE_TURNING_ON);
-			new Thread(new Join()).start();
-			return true;
-		} catch (Exception e) {
-			Log.e(TAG, "Cannot start Join() thread", e);
-			return false;
-		}
+		setState(BluetoothAdapter.STATE_TURNING_ON);
+		setState(BluetoothAdapter.STATE_ON);
+		setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE);
+		return true;
+	}
+
+	public String generateName(String address) {
+		return "emulator-" + address.replace(":", "");
 	}
 
 	public String getAddress() {
@@ -100,8 +106,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 				byte[] buf = new byte[100];
 				int read = fis.read(buf);
 				this.address = new String(buf, 0, read);
-			}
-			catch (Exception readException) {
+			} catch (Exception readException) {
 				Log.d(TAG, "error while reading Bluetooth address", readException);
 				try {
 					Log.d(TAG, "saving Bluetooth address");
@@ -112,8 +117,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 					outw.flush();
 					outw.close();
 					this.address = addr;
-				}
-				catch (Exception writeException) {
+				} catch (Exception writeException) {
 					Log.e(TAG, "error while writing Bluetooth address", writeException);
 				}
 			}
@@ -122,24 +126,32 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		return this.address;
 	}
 
+
+	public Set<BluetoothDevice> getBondedDevices() {
+		return this.bonded;
+	}
+
 	public String getName() {
 		return this.name;
 	}
 
 	public BluetoothDevice getRemoteDevice(String address) {
-		if(!BluetoothAdapter.checkBluetoothAddress(address)) {
+		if (!BluetoothAdapter.checkBluetoothAddress(address)) {
 			throw new IllegalArgumentException("wrong device address");
 		}
 		BluetoothDevice device = null;
 		if (devices.containsKey(address)) {
 			device = devices.get(address);
-		}
-		else {
+		} else {
 			// TODO Create a device anyway
 			Log.e(TAG, "Device address not found: " + address);
 		}
 		Log.d(TAG, "Returning Bluetooth device: " + device);
 		return device;
+	}
+
+	public int getScanMode() {
+		return scanMode;
 	}
 
 	public int getState() {
@@ -172,10 +184,28 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		return true;
 	}
 
-	public boolean startDiscovery() {
-		if(!isEnabled()) {
-			return false;
+	public void setState(int state) {
+		if (this.state != state) {
+			Bundle extras = new Bundle();
+			extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_STATE, this.state);
+			extras.putInt(BluetoothAdapter.EXTRA_STATE, state);
+			this.state = state;
+			sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED, extras);
 		}
+	}
+
+	public void startDiscoverable() {
+		if (!isEnabled()) {
+			enable();
+		}
+		try {
+			new Thread(new Join()).start();
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot start Join() thread", e);
+		}
+	}
+
+	public boolean startDiscovery() {
 		try {
 			setDiscovering(true);
 			new Thread(new Discovery()).start();
@@ -186,23 +216,39 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		}
 	}
 
+	public void stopDiscoverable() {
+		try {
+			new Thread(new Leave()).start();
+		} catch (Exception e) {
+			Log.e(TAG, "Cannot start Leave() thread", e);
+		}
+	}
+
 	@Override
 	public void onJoinReturned() {
-		this.setState(BluetoothAdapter.STATE_ON);
-		sendResult(Activity.RESULT_OK);
+		if (isEnabled()) {
+			setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+			sendResult(Activity.RESULT_OK);
+		} else {
+			setScanMode(BluetoothAdapter.SCAN_MODE_NONE);
+		}
 	}
 
 	@Override
 	public void onLeaveReturned() {
-		this.setState(BluetoothAdapter.STATE_OFF);
+		if (this.state == BluetoothAdapter.STATE_TURNING_OFF || this.state == BluetoothAdapter.STATE_OFF) {
+			setScanMode(BluetoothAdapter.SCAN_MODE_NONE);
+			setState(BluetoothAdapter.STATE_OFF);
+		} else {
+			setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE);
+		}
 	}
 
 	@Override
 	public void onDiscoveryReturned(Hashtable<String, BluetoothDevice> devices) {
 		if (devices.isEmpty()) {
 			Log.d(TAG, "Discovered no Bluetooth devices");
-		}
-		else {
+		} else {
 			Set<String> keys = devices.keySet();
 			for (String key : keys) {
 				BluetoothDevice device = devices.get(key);
@@ -218,15 +264,6 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private String generateName() {
-		return generateName(getAddress());
-	}
-
-	// should be private once device instaces are created on demand
-	public String generateName(String address) {
-		return "emulator-" + address.replace(":", "");
-	}
-
 	private String generateAddress() {
 		Log.d(TAG, "generating Bluetooth address");
 		//sample: 00:11:22:AA:BB:CC
@@ -234,7 +271,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		StringBuffer sb = new StringBuffer();
 		Random r = new Random();
 		boolean f = true;
-		for(int i = 0; i < 3; i++) {
+		for (int i = 0; i < 3; i++) {
 			if (f) {
 				f = !f;
 			} else {
@@ -246,12 +283,16 @@ public class BluetoothAdapterEmulator implements CommandListener {
 			} while (n < 10);
 			sb.append(n);
 		}
-		for(int i = 0; i<3;i++) {
+		for (int i = 0; i < 3; i++) {
 			sb.append(":");
 			sb.append(chars.charAt(r.nextInt(6)));
 			sb.append(chars.charAt(r.nextInt(6)));
 		}
 		return sb.toString();
+	}
+
+	private String generateName() {
+		return generateName(getAddress());
 	}
 
 	private void sendBroadcast(String action) {
@@ -290,13 +331,13 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		}
 	}
 
-	private void setState(int state) {
-		if (this.state != state) {
+	private void setScanMode(int scanMode) {
+		if (this.scanMode != scanMode) {
 			Bundle extras = new Bundle();
-			extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_STATE, this.state);
-			extras.putInt(BluetoothAdapter.EXTRA_STATE, state);
-			this.state = state;
-			sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED, extras);
+			extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_SCAN_MODE, this.scanMode);
+			extras.putInt(BluetoothAdapter.EXTRA_SCAN_MODE, scanMode);
+			this.scanMode = scanMode;
+			sendBroadcast(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED, extras);
 		}
 	}
 }

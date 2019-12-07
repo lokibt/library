@@ -31,7 +31,8 @@ import dk.itu.android.bluetooth.BluetoothSocket;
 public class Main extends Activity {
 	static final String TAG = "BTEMU";
 	static final String ITEM_KEY = "key";
-	static int REQUEST_ENABLE_BT = 1234;
+	static final int REQUEST_DISCOVERABLE = 23;
+	static final int REQUEST_ENABLE = 42;
 
 	final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
@@ -58,6 +59,23 @@ public class Main extends Activity {
 							Log.e(TAG, "Unknown Bluetooth state: " + state);
 							break;
 						}
+					break;
+				case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
+					int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, -1);
+					switch (scanMode) {
+						case BluetoothAdapter.SCAN_MODE_NONE:
+							Log.d(TAG, scanMode + ": Device is hidden");
+							break;
+						case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+							Log.d(TAG, scanMode + ": Device is connectable");
+							break;
+						case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+							Log.d(TAG, scanMode + ": Device is discoverable");
+							break;
+						default:
+							Log.e(TAG, "Unknown Bluetooth scan mode: " + scanMode);
+							break;
+					}
 					break;
 				case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
 					Log.d(TAG, "Bluetooth discovery started");
@@ -96,6 +114,7 @@ public class Main extends Activity {
 		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
 		filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 		filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
+		filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(mReceiver, filter);
 
@@ -105,6 +124,7 @@ public class Main extends Activity {
 
 		Button enableBtn = (Button)findViewById(R.id.Enable);
 		Button disableBtn = (Button)findViewById(R.id.Disable);
+		Button discoverableBtn = (Button)findViewById(R.id.Discoverable);
 		Button discoveryBtn = (Button)findViewById(R.id.Discovery);
 		Button serverBtn = (Button)findViewById(R.id.StartServer);
 		Button clientBtn = (Button)findViewById(R.id.StartClient);
@@ -113,11 +133,8 @@ public class Main extends Activity {
 			@Override
 			public void onClick(View v) {
 				Log.i(TAG, "Enabling emulator...");
-				// bta.enable();
-				if(!bta.isEnabled()) {
-					Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-					startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-				}
+				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+				startActivityForResult(enableBtIntent, REQUEST_ENABLE);
 			}
 		});
 
@@ -126,6 +143,15 @@ public class Main extends Activity {
 			public void onClick(View v) {
 				Log.i(TAG, "Disabling emulator...");
 				bta.disable();
+			}
+		});
+
+		discoverableBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.i(TAG, "Making device dicoverable...");
+				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+				startActivityForResult(enableBtIntent, REQUEST_DISCOVERABLE);
 			}
 		});
 
@@ -166,20 +192,35 @@ public class Main extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if(requestCode == REQUEST_ENABLE_BT) {
-			switch (resultCode) {
-				case RESULT_OK:
-					Log.d(TAG, "REQUEST_ENABLE_BT returned: RESULT_OK");
-					break;
-				case RESULT_CANCELED:
-					Log.d(TAG, "REQUEST_ENABLE_BT returned: RESULT_CANCELED");
-					break;
-				default:
-					Log.e(TAG, "REQUEST_ENABLE_BT returned unknown code: " + resultCode);
-					break;
-			}
+    	switch (requestCode) {
+			case REQUEST_DISCOVERABLE:
+				switch (resultCode) {
+					case RESULT_OK:
+						Log.d(TAG, "REQUEST_DISCOVERABLE returned: RESULT_OK");
+						break;
+					case RESULT_CANCELED:
+						Log.d(TAG, "REQUEST_DISCOVERABLE returned: RESULT_CANCELED");
+						break;
+					default:
+						Log.e(TAG, "REQUEST_DISCOVERABLE returned unknown result code: " + resultCode);
+				}
+				break;
+			case REQUEST_ENABLE:
+				switch (resultCode) {
+					case RESULT_OK:
+						Log.d(TAG, "REQUEST_ENABLE returned: RESULT_OK");
+						break;
+					case RESULT_CANCELED:
+						Log.d(TAG, "REQUEST_ENABLE returned: RESULT_CANCELED");
+						break;
+					default:
+						Log.e(TAG, "REQUEST_ENABLE returned unknown result code: " + resultCode);
+				}
+				break;
+			default:
+				Log.e(TAG, "Unknown request code: " + requestCode);
 		}
-	}
+    }
 
     BluetoothDevice other = null;
 

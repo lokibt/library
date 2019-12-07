@@ -14,6 +14,8 @@ import android.widget.TextView;
 public class BluetoothDialog extends Activity {
 	private static final String TAG = "BTDIALOG";
 
+	private final BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
+
 	private Intent intent;
 
 	@Override
@@ -22,7 +24,7 @@ public class BluetoothDialog extends Activity {
         setContentView(R.layout.ctrl);
 
 		intent = getIntent();
-		Log.d(TAG, "Bluetoth dialog created for action: " + intent.getAction());
+		Log.d(TAG, "Bluetooth dialog created for action: " + intent.getAction());
 
 		TextView textView = findViewById(R.id.message);
 		switch(intent.getAction()) {
@@ -40,11 +42,16 @@ public class BluetoothDialog extends Activity {
 	public void onAllow(View view) {
 		switch(intent.getAction()) {
 			case BluetoothAdapter.ACTION_REQUEST_ENABLE:
-				BluetoothAdapterEmulator.getInstance().enable();
+				if (emulator.enable()) {
+					setResult(RESULT_OK);
+				}
+				else {
+					setResult(Activity.RESULT_CANCELED);
+				}
+				finish();
 				break;
 			case BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE:
-				// TODO set discoverable state
-				setResult(RESULT_OK);
+				emulator.startDiscoverable();
 				break;
 			default:
 				Log.e(TAG, "Unknown action: " + intent.getAction());
@@ -52,6 +59,7 @@ public class BluetoothDialog extends Activity {
 	}
 
 	public void onDeny(View view) {
+		setResult(RESULT_CANCELED);
 		finish();
 	}
 }
