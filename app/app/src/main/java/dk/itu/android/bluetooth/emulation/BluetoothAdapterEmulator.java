@@ -44,22 +44,23 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	private String address;
 	private Context context;
 	private Activity ctrlActivity = null;
-	private Hashtable<String, BluetoothDevice> devices;
+	private Set<BluetoothDevice> discoveredDevices;
 	private boolean discovering = false;
 	private String name;
 	private int state = BluetoothAdapter.STATE_OFF;
-	private Set<BluetoothDevice> bonded;
+	private Set<BluetoothDevice> bondedDevices;
 	private int scanMode = BluetoothAdapter.SCAN_MODE_NONE;
 
 	private BluetoothAdapterEmulator(Context context) {
 		this.context = context;
-		this.bonded = new HashSet<BluetoothDevice>();
+		this.bondedDevices = new HashSet<BluetoothDevice>();
+		this.discoveredDevices = new HashSet<BluetoothDevice>();
 		// Generating a name will also set the address
 		this.name = generateName();
 	}
 
 	public void addBondedDevice(BluetoothDevice device) {
-		this.bonded.add(device);
+		this.bondedDevices.add(device);
 	}
 
 	public boolean cancelDiscovery() {
@@ -128,7 +129,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
 
 	public Set<BluetoothDevice> getBondedDevices() {
-		return this.bonded;
+		return this.bondedDevices;
 	}
 
 	public String getName() {
@@ -140,9 +141,13 @@ public class BluetoothAdapterEmulator implements CommandListener {
 			throw new IllegalArgumentException("wrong device address");
 		}
 		BluetoothDevice device = null;
-		if (devices.containsKey(address)) {
-			device = devices.get(address);
-		} else {
+		for (BluetoothDevice d : discoveredDevices) {
+			if (d.getAddress().equals(address)) {
+				device = d;
+				break;
+			}
+		}
+		if (device == null) {
 			// TODO Create a device anyway
 			Log.e(TAG, "Device address not found: " + address);
 		}
@@ -245,20 +250,14 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	@Override
-	public void onDiscoveryReturned(Hashtable<String, BluetoothDevice> devices) {
-		if (devices.isEmpty()) {
-			Log.d(TAG, "Discovered no Bluetooth devices");
-		} else {
-			Set<String> keys = devices.keySet();
-			for (String key : keys) {
-				BluetoothDevice device = devices.get(key);
-				Log.d(TAG, "Discovered device: " + device);
-				Bundle extras = new Bundle();
-				extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, device);
-				sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
-			}
+	public void onDiscoveryReturned(Set<BluetoothDevice> devices) {
+		for (BluetoothDevice d : devices) {
+			Log.d(TAG, "Discovered device: " + d);
+			Bundle extras = new Bundle();
+			extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, d);
+			sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
 		}
-		this.devices = devices;
+		this.discoveredDevices = devices;
 		setDiscovering(false);
 	}
 

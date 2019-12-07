@@ -6,7 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.os.Parcel;
 import android.text.TextUtils;
@@ -24,7 +25,7 @@ public class Discovery extends NoParamsBaseCommand {
 
 	@Override
 	protected void readResponse(InputStream in) throws IOException {
-		Hashtable<String, BluetoothDevice> devices  = new Hashtable<String, BluetoothDevice> ();
+		Set<BluetoothDevice> devices  = new HashSet<BluetoothDevice>();
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		String line = br.readLine();
 		while(line != null) {
@@ -47,7 +48,7 @@ public class Discovery extends NoParamsBaseCommand {
 			}
 			device.writeParcelableArray(services.toArray(new Connector[]{}), 0);
 			device.setDataPosition(0);
-			devices.put(deviceInfo[0], BluetoothDevice.CREATOR.createFromParcel(device));
+			devices.add(BluetoothDevice.CREATOR.createFromParcel(device));
 			line = br.readLine();
 		}
 		emulator.onDiscoveryReturned(devices);
