@@ -1,7 +1,6 @@
 package dk.itu.android.bluetooth.emulation;
 
 import dk.itu.android.bluetooth.BluetoothAdapter;
-import dk.itu.android.bluetooth.emulation.BluetoothAdapterEmulator;
 import dk.itu.android.btemu.R;
 
 import android.app.Activity;

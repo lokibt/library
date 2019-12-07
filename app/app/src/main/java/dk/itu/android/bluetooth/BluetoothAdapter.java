@@ -1,7 +1,6 @@
 package dk.itu.android.bluetooth;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 

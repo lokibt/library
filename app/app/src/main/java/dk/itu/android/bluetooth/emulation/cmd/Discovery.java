@@ -14,7 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import dk.itu.android.bluetooth.BluetoothDevice;
-import dk.itu.android.bluetooth.emulation.Connector;
+import dk.itu.android.bluetooth.emulation.BluetoothDeviceService;
 
 public class Discovery extends NoParamsBaseCommand {
 	final static String TAG = "BTCMD_DISCOVERY";
@@ -37,16 +37,16 @@ public class Discovery extends NoParamsBaseCommand {
 			device.writeString(deviceInfo[1]);
 			device.writeString(emulator.generateName(deviceInfo[0]));
 			// Adding provided services
-			ArrayList<Connector> services = new ArrayList<Connector>();
+			ArrayList<BluetoothDeviceService> services = new ArrayList<BluetoothDeviceService>();
 			if (deviceInfo.length > 2) {
 				String[] serviceInfoList = deviceInfo[2].split("<><>");
 				for(int i=0; i<serviceInfoList.length; i++) {
 					String[] serviceInfo = serviceInfoList[i].split("<>");
 					Log.d(TAG, "serviceInfo: " + TextUtils.join(", ", serviceInfo));
-					services.add(new Connector(serviceInfo[0], Integer.parseInt(serviceInfo[1])));
+					services.add(new BluetoothDeviceService(serviceInfo[0], Integer.parseInt(serviceInfo[1])));
 				}
 			}
-			device.writeParcelableArray(services.toArray(new Connector[]{}), 0);
+			device.writeParcelableArray(services.toArray(new BluetoothDeviceService[]{}), 0);
 			device.setDataPosition(0);
 			devices.add(BluetoothDevice.CREATOR.createFromParcel(device));
 			line = br.readLine();

@@ -8,7 +8,7 @@ import java.util.UUID;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import dk.itu.android.bluetooth.emulation.Connector;
+import dk.itu.android.bluetooth.emulation.BluetoothDeviceService;
 
 public class BluetoothDevice implements Parcelable {
 	private static final String TAG = "BTDEVICE";
@@ -20,10 +20,10 @@ public class BluetoothDevice implements Parcelable {
 			device.addr = source.readString();
 			device.tcpAddr = source.readString();
 			device.name = source.readString();
-			device.services = new ArrayList<Connector>();
+			device.services = new ArrayList<BluetoothDeviceService>();
 			Parcelable[] tmp = source.readParcelableArray(BluetoothDevice.class.getClassLoader());
 			for(Parcelable s : tmp) {
-				device.services.add((Connector)s);
+				device.services.add((BluetoothDeviceService)s);
 			}
 			return device;
 		}
@@ -38,7 +38,7 @@ public class BluetoothDevice implements Parcelable {
 		out.writeString(addr);
 		out.writeString(tcpAddr);
 		out.writeString(name);
-		out.writeParcelableArray(services.toArray(new Connector[]{}), 0);
+		out.writeParcelableArray(services.toArray(new BluetoothDeviceService[]{}), 0);
 	}
 
 	//constants
@@ -63,7 +63,7 @@ public class BluetoothDevice implements Parcelable {
 
 	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) throws IOException {
 		String uuids = uuid.toString();
-		for(Connector s : services) {
+		for(BluetoothDeviceService s : services) {
 			if(s.getUuid().equals(uuids)) {
 				Log.i("BT_DEVICE", "found service "+s.getUuid()+" on device "+addr);
 				return new BluetoothSocket(this.tcpAddr,s.getTcpPort(),this);
@@ -97,5 +97,5 @@ public class BluetoothDevice implements Parcelable {
 	private String addr;
 	private String tcpAddr;
 	private String name;
-	private List<Connector> services;
+	private List<BluetoothDeviceService> services;
 }

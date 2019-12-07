@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Random;
 import java.util.Set;
 
@@ -148,8 +147,8 @@ public class BluetoothAdapterEmulator implements CommandListener {
 			}
 		}
 		if (device == null) {
-			// TODO Create a device anyway
 			Log.e(TAG, "Device address not found: " + address);
+			Log.i(TAG, "TODO Create a device anyway");
 		}
 		Log.d(TAG, "Returning Bluetooth device: " + device);
 		return device;

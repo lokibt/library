@@ -3,19 +3,19 @@ package dk.itu.android.bluetooth.emulation;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Connector implements Parcelable {
+public class BluetoothDeviceService implements Parcelable {
 
-	public static Parcelable.Creator<Connector> CREATOR = new Parcelable.Creator<Connector>() {
+	public static Parcelable.Creator<BluetoothDeviceService> CREATOR = new Parcelable.Creator<BluetoothDeviceService>() {
 		@Override
-		public Connector createFromParcel(Parcel source) {
-			Connector out = new Connector();
+		public BluetoothDeviceService createFromParcel(Parcel source) {
+			BluetoothDeviceService out = new BluetoothDeviceService();
 			out.tcpPort = source.readInt();
 			out.uuid = source.readString();
 			return out;
 		}
 		@Override
-		public Connector[] newArray(int size) {
-			return new Connector[size];
+		public BluetoothDeviceService[] newArray(int size) {
+			return new BluetoothDeviceService[size];
 		}
 	};
 	
@@ -32,8 +32,8 @@ public class Connector implements Parcelable {
 	int tcpPort;
 	String uuid;
 	
-	public Connector(){}
-	public Connector(String uuid, int port) {
+	public BluetoothDeviceService(){}
+	public BluetoothDeviceService(String uuid, int port) {
 		this.uuid = uuid;
 		this.tcpPort = port;
 	}
