@@ -1,7 +1,7 @@
 package dk.itu.android.btemu;
 
 import dk.itu.android.bluetooth.BluetoothAdapter;
-import dk.itu.android.bluetooth.emulation.Emulator;
+import dk.itu.android.bluetooth.emulation.BluetoothAdapterEmulator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ public class BTEnableControl extends Activity {
 		super.onCreate(savedInstanceState);
         //setContentView(R.layout.ctrl);
 
-		Emulator.getInstance().setControllerActivity(this);
+		BluetoothAdapterEmulator.getInstance().setControllerActivity(this);
 	}
 
 	@Override

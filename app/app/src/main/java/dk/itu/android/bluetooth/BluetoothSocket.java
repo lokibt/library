@@ -21,7 +21,7 @@ public class BluetoothSocket {
 		this.port = port;
 		this.remote = device;
 	}
-	protected BluetoothSocket(Socket s,BluetoothDevice device){
+	public BluetoothSocket(Socket s, BluetoothDevice device){
 		this.socket = s;
 		this.remote = device;
 	}

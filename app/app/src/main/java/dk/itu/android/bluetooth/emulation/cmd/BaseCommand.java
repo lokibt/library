@@ -7,14 +7,14 @@ import java.net.Socket;
 
 import android.util.Log;
 
-import dk.itu.android.bluetooth.emulation.Emulator;
+import dk.itu.android.bluetooth.emulation.BluetoothAdapterEmulator;
 
 public abstract class BaseCommand implements Runnable {
 	static final String UTF8 = "UTF8";
 	static final String DEV_MACHINE_IP = "10.0.2.2";
 	static final int DISCOVERY_SERVICE_PORT = 8199;
        
-       protected Emulator emulator = Emulator.getInstance();
+    protected BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
 
 	CommandType type;
 	Socket socket;

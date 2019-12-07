@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import dk.itu.android.bluetooth.BluetoothAdapter;
-import dk.itu.android.bluetooth.emulation.Emulator;
-
 public class Leave extends NoParamsBaseCommand {
 	
 	public Leave() {

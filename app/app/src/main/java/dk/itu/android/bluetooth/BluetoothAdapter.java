@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import dk.itu.android.bluetooth.emulation.Emulator;
+import dk.itu.android.bluetooth.emulation.BluetoothAdapterEmulator;
 
 public class BluetoothAdapter {
 	public static final String ACTION_DISCOVERY_FINISHED = "dk.android.bluetooth.adapter.action.DISCOVERY_FINISHED";
@@ -43,7 +43,7 @@ public class BluetoothAdapter {
 		return defaultAdapter;
 	}
 
-	private Emulator emulator = Emulator.getInstance();
+	private BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
 	private Set<BluetoothDevice> bonded = new HashSet<BluetoothDevice>();
 	private int scanMode = android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 
@@ -79,6 +79,10 @@ public class BluetoothAdapter {
 		return emulator.isEnabled();
 	}
 
+	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
+		return new BluetoothServerSocket(uuid);
+	}
+
 	public boolean setName(String name) {
 		return emulator.setName(name);
 	}
@@ -103,23 +107,5 @@ public class BluetoothAdapter {
 
 	public int getScanMode() {
 		return scanMode;
-	}
-
-	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
-		
-		//chhoose a random tcp port
-		int port = choosePort();
-		
-		BluetoothServerSocket out = new BluetoothServerSocket(emulator,uuid.toString(),port);
-		
-//		emulator.addService(uuid.toString(), port);
-		
-		return out;
-	}
-
-	static int _curPort = 8123;
-	private int choosePort() {
-		_curPort++;
-		return _curPort;
 	}
 }

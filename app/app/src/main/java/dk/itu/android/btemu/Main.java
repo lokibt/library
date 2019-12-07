@@ -175,7 +175,7 @@ public class Main extends Activity {
 					Log.d(TAG, "REQUEST_ENABLE_BT returned: RESULT_CANCELED");
 					break;
 				default:
-					Log.e(TAG, "REQUEST_ENABLE_BT returned unknow code: " + resultCode);
+					Log.e(TAG, "REQUEST_ENABLE_BT returned unknown code: " + resultCode);
 					break;
 			}
 		}

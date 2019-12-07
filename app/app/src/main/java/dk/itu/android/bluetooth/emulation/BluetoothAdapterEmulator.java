@@ -3,7 +3,6 @@ package dk.itu.android.bluetooth.emulation;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Set;
@@ -19,22 +18,21 @@ import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 import dk.itu.android.bluetooth.emulation.cmd.Join;
 import dk.itu.android.bluetooth.emulation.cmd.Leave;
-import dk.itu.android.bluetooth.emulation.cmd.ModifyService;
 import dk.itu.android.bluetooth.emulation.cmd.CommandListener;
 
-public class Emulator implements CommandListener {
+public class BluetoothAdapterEmulator implements CommandListener {
 	private static final String TAG = "BTEMULATOR";
 
-	private static Emulator instance = null;
+	private static BluetoothAdapterEmulator instance = null;
 
-	public static Emulator getInstance() {
+	public static BluetoothAdapterEmulator getInstance() {
 		if (instance == null) {
 			try {
 				// Getting application context via reflection
 				// https://stackoverflow.com/questions/2002288/static-way-to-get-context-in-android
 				Context context = (Context) Class.forName("android.app.ActivityThread")
 						.getMethod("currentApplication").invoke(null, (Object[]) null);
-				instance = new Emulator(context);
+				instance = new BluetoothAdapterEmulator(context);
 			} catch (Exception e) {
 				Log.e(TAG, "unable to get application context", e);
 			}
@@ -50,7 +48,7 @@ public class Emulator implements CommandListener {
 	private String name;
 	private int state = BluetoothAdapter.STATE_OFF;
 
-	Emulator(Context context) {
+	BluetoothAdapterEmulator(Context context) {
 		this.context = context;
 		// Generating a name will also set the address
 		this.name = generateName();
@@ -295,49 +293,6 @@ public class Emulator implements CommandListener {
 		if (this.state != state) {
 			this.state = state;
 			sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-//	public BluetoothDevice lookupIP( String ipAddr ) {
-//		ExecutorService executor = Executors.newFixedThreadPool(1);
-//		FutureTask<List<BluetoothDevice>> future = 
-//			new FutureTask<List<BluetoothDevice>>(new Callable<List<BluetoothDevice>>(){
-//			@Override
-//			public List<BluetoothDevice> call() throws Exception {
-//				Discovery d = new Discovery();
-//				d.run();
-//				return d.getDevices();
-//			}
-//		});
-//		executor.execute(future);
-//		try {
-//			List<BluetoothDevice> devices = future.get();
-//			for(BluetoothDevice d : devices) {
-//				if(d.getTcpAddr().equals(ipAddr))
-//					return d;
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			Log.e(TAG, "cannot retrieve btdevices", e);
-//		}
-//		
-//		return null;
-//	}
-	
-	public void addService( String uuid, int port ) {
-		modifyService(uuid,port,true);
-	}
-	public void removeService( String uuid, int port ) {
-		modifyService(uuid,port,false);
-	}
-	protected void modifyService( String uuid, int port, boolean add ) {
-		try {
-			new ModifyService(uuid,port,add).run();
-		} catch (Exception e) {
-			e.printStackTrace();
-			Log.e(TAG, "cannot modify service", e);
 		}
 	}
 }

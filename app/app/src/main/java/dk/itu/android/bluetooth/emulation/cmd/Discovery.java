@@ -24,7 +24,7 @@ public class Discovery extends NoParamsBaseCommand {
 
 	@Override
 	protected void readResponse(InputStream in) throws IOException {
-		Hashtable<String, BluetoothDevice> devices  = new Hashtable();
+		Hashtable<String, BluetoothDevice> devices  = new Hashtable<String, BluetoothDevice> ();
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		String line = br.readLine();
 		while(line != null) {
@@ -36,7 +36,7 @@ public class Discovery extends NoParamsBaseCommand {
 			device.writeString(deviceInfo[1]);
 			device.writeString(emulator.generateName(deviceInfo[0]));
 			// Adding provided services
-			ArrayList<Connector> services = new ArrayList();
+			ArrayList<Connector> services = new ArrayList<Connector>();
 			if (deviceInfo.length > 2) {
 				String[] serviceInfoList = deviceInfo[2].split("<><>");
 				for(int i=0; i<serviceInfoList.length; i++) {
