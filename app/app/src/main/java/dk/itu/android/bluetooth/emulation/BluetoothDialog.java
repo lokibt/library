@@ -16,6 +16,7 @@ public class BluetoothDialog extends Activity {
 	private final BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
 
 	private Intent intent;
+	private int duration;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,8 @@ public class BluetoothDialog extends Activity {
 				textView.setText(getResources().getText(R.string.message_enable));
 				break;
 			case BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE:
-				textView.setText(getResources().getText(R.string.message_discoverable));
+				duration = intent.getIntExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+				textView.setText(String.format(getResources().getString(R.string.message_discoverable), duration));
 				break;
 		}
 
@@ -50,7 +52,7 @@ public class BluetoothDialog extends Activity {
 				finish();
 				break;
 			case BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE:
-				emulator.startDiscoverable();
+				emulator.startDiscoverable(duration);
 				break;
 			default:
 				Log.e(TAG, "Unknown action: " + intent.getAction());

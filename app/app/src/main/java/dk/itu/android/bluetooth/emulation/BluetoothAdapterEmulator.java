@@ -6,6 +6,8 @@ import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
@@ -198,12 +200,19 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		}
 	}
 
-	public void startDiscoverable() {
+	public void startDiscoverable(int duration) {
 		if (!isEnabled()) {
 			enable();
 		}
 		try {
+			new Timer().schedule(new TimerTask() {
+				@Override
+				public void run() {
+					stopDiscoverable();
+				}
+			}, duration * 1000);
 			new Thread(new Join()).start();
+
 		} catch (Exception e) {
 			Log.e(TAG, "Cannot start Join() thread", e);
 		}
