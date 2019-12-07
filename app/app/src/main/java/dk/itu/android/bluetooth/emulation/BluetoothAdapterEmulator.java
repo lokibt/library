@@ -48,7 +48,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	private String name;
 	private int state = BluetoothAdapter.STATE_OFF;
 
-	BluetoothAdapterEmulator(Context context) {
+	private BluetoothAdapterEmulator(Context context) {
 		this.context = context;
 		// Generating a name will also set the address
 		this.name = generateName();
@@ -291,8 +291,11 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
 	private void setState(int state) {
 		if (this.state != state) {
+			Bundle extras = new Bundle();
+			extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_STATE, this.state);
+			extras.putInt(BluetoothAdapter.EXTRA_STATE, state);
 			this.state = state;
-			sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED);
+			sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED, extras);
 		}
 	}
 }
