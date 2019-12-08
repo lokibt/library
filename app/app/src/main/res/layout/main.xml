@@ -45,12 +45,6 @@
         android:layout_height="wrap_content"
         android:text="Start Server" />
 
-    <Button
-        android:id="@+id/StartClient"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start Client"/>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
