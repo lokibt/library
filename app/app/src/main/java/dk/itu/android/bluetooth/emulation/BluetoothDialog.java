@@ -37,7 +37,7 @@ public class BluetoothDialog extends Activity {
 				break;
 		}
 
-		BluetoothAdapterEmulator.getInstance().setActivity(this);
+		emulator.setActivity(this);
 	}
 
 	public void onAllow(View view) {

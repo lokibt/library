@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="dk.itu.android.btemu">
 
+    <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
     <!-- needs internet permission to contact the discovery server...
     remove this and add both BLUETOOTH and BLUETOOTH_ADMIN for
     deploying on real devices -->

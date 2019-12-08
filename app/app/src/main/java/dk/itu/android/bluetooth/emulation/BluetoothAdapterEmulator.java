@@ -2,21 +2,28 @@ package dk.itu.android.bluetooth.emulation;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.core.content.ContextCompat;
+
 import dk.itu.android.bluetooth.BluetoothAdapter;
 import dk.itu.android.bluetooth.BluetoothDevice;
+import dk.itu.android.bluetooth.BluetoothServerSocket;
 import dk.itu.android.bluetooth.emulation.cmd.Discovery;
 import dk.itu.android.bluetooth.emulation.cmd.Join;
 import dk.itu.android.bluetooth.emulation.cmd.Leave;
@@ -65,6 +72,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public boolean cancelDiscovery() {
+		checkAdminPermission();
 		if (!isEnabled()) {
 			return false;
 		}
@@ -74,6 +82,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public boolean disable() {
+		checkAdminPermission();
 		if (this.state == BluetoothAdapter.STATE_OFF || this.state == BluetoothAdapter.STATE_TURNING_OFF) {
 			return false;
 		}
@@ -87,6 +96,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public boolean enable() {
+		checkAdminPermission();
 		if (this.state == BluetoothAdapter.STATE_ON || this.state == BluetoothAdapter.STATE_TURNING_OFF) {
 			return false;
 		}
@@ -100,7 +110,10 @@ public class BluetoothAdapterEmulator implements CommandListener {
 		return "emulator-" + address.replace(":", "");
 	}
 
-	public String getAddress() {
+	public String getAddress(boolean strict) {
+		if (strict) {
+			checkPermission();
+		}
 		if (this.address == null) {
 			try {
 				FileInputStream fis = this.context.openFileInput("BTADDR.TXT");
@@ -130,10 +143,12 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
 
 	public Set<BluetoothDevice> getBondedDevices() {
+		checkPermission();
 		return this.bondedDevices;
 	}
 
 	public String getName() {
+		checkPermission();
 		return this.name;
 	}
 
@@ -157,19 +172,28 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public int getScanMode() {
+		checkPermission();
 		return scanMode;
 	}
 
 	public int getState() {
+		checkPermission();
 		return this.state;
 	}
 
 	public boolean isDiscovering() {
+		checkPermission();
 		return this.discovering;
 	}
 
 	public boolean isEnabled() {
+		checkPermission();
 		return this.state == BluetoothAdapter.STATE_ON;
+	}
+
+	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
+		checkPermission();
+		return new BluetoothServerSocket(uuid);
 	}
 
 	public void setActivity(Activity ctrlActivity) {
@@ -178,6 +202,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public boolean setName(String name) {
+		checkAdminPermission();
 		if (!isEnabled()) {
 			return false;
 		}
@@ -219,6 +244,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	public boolean startDiscovery() {
+		checkAdminPermission();
 		try {
 			setDiscovering(true);
 			new Thread(new Discovery()).start();
@@ -271,6 +297,20 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
+	private void checkPermission() {
+		if(ContextCompat.checkSelfPermission(context,Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_DENIED) {
+			Log.e(TAG, "Missing permission: BLUETOOTH");
+			throw new SecurityException();
+		}
+	}
+
+	private void checkAdminPermission() {
+		if(ContextCompat.checkSelfPermission(context,Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_DENIED) {
+			Log.e(TAG, "Missing permission: BLUETOOTH_ADMIN");
+			throw new SecurityException();
+		}
+	}
+
 	private String generateAddress() {
 		Log.d(TAG, "generating Bluetooth address");
 		//sample: 00:11:22:AA:BB:CC
@@ -299,7 +339,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 	}
 
 	private String generateName() {
-		return generateName(getAddress());
+		return generateName(getAddress(false));
 	}
 
 	private void sendBroadcast(String action) {

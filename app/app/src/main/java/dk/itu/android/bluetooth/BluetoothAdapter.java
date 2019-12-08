@@ -48,31 +48,31 @@ public class BluetoothAdapter {
 		return emulator.cancelDiscovery();
 	}
 
-	public boolean disable(){
+	public boolean disable() {
 		return emulator.disable();
 	}
 
-	public boolean enable(){
+	public boolean enable() {
 		return emulator.enable();
 	}
 
-	public String getAddress(){
-		return emulator.getAddress();
+	public String getAddress() {
+		return emulator.getAddress(true);
 	}
 
-	public Set<BluetoothDevice> getBondedDevices(){
+	public Set<BluetoothDevice> getBondedDevices() {
 		return emulator.getBondedDevices();
 	}
 
-	public String getName(){
+	public String getName() {
 		return emulator.getName();
 	}
 
-	public int getScanMode(){
+	public int getScanMode() {
 		return emulator.getScanMode();
 	}
 
-	public int getState(){
+	public int getState() {
 		return emulator.getState();
 	}
 
@@ -85,7 +85,7 @@ public class BluetoothAdapter {
 	}
 
 	public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
-		return new BluetoothServerSocket(uuid);
+		return emulator.listenUsingRfcommWithServiceRecord(name, uuid);
 	}
 
 	public boolean setName(String name) {

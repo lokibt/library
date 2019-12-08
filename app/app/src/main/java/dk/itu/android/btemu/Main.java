@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,10 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import dk.itu.android.bluetooth.BluetoothAdapter;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.BluetoothServerSocket;

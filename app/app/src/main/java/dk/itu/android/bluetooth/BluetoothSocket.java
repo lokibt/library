@@ -1,5 +1,7 @@
 package dk.itu.android.bluetooth;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +32,7 @@ public class BluetoothSocket {
 		socket.close();
 	}
 	public void connect() throws IOException {
+		Log.d("BTSOCKET", "Connecting to " + ip + "; " +port);
 		if(socket == null) {
 			socket = new Socket(ip,port);
 			OutputStream os = getOutputStream();

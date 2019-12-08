@@ -8,7 +8,7 @@ import dk.itu.android.bluetooth.emulation.BluetoothServerSocketEmulator;
 public class BluetoothServerSocket {
 	private BluetoothServerSocketEmulator emulator;
 	
-	protected BluetoothServerSocket(UUID uuid) {
+	public BluetoothServerSocket(UUID uuid) {
 		this.emulator = new BluetoothServerSocketEmulator(uuid);
 	}
 

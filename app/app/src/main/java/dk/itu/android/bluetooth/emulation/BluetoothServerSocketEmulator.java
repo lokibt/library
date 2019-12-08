@@ -37,7 +37,7 @@ public class BluetoothServerSocketEmulator {
 	}
 
 	public BluetoothSocket accept() throws IOException {
-		Log.d(TAG, "Waiting for incoming connections...");
+		Log.d(TAG, "Waiting for incoming connections on port " + socket.getInetAddress() + "; " + socket.getLocalSocketAddress() + ";" + socket.getLocalPort());
 		// blocks until a connection is established
 		Socket s = socket.accept();
 		return createBTSocket(s);
