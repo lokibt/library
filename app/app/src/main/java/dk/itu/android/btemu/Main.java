@@ -46,21 +46,21 @@ public class Main extends Activity implements OnItemClickListener {
 					int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
 					switch (state) {
 						case BluetoothAdapter.STATE_TURNING_ON:
-							Log.d(TAG, "Bluetooth will be enabled");
+							logToView("Bluetooth will be enabled");
 							break;
 						case BluetoothAdapter.STATE_TURNING_OFF:
-							Log.d(TAG, "Bluetooth will be disabled");
+							logToView("Bluetooth will be disabled");
 							break;
 						case BluetoothAdapter.STATE_ON:
-							Log.d(TAG, "Bluetooth was enabled");
+							logToView("Bluetooth was enabled");
 							enableSwitch.setChecked(true);
 							break;
 						case BluetoothAdapter.STATE_OFF:
-							Log.d(TAG, "Bluetooth was disabled");
+							logToView("Bluetooth was disabled");
 							enableSwitch.setChecked(false);
 							break;
 						default:
-							Log.e(TAG, "Unknown Bluetooth state: " + state);
+							logErrorToView("Unknown Bluetooth state: " + state);
 							break;
 						}
 					break;
@@ -68,38 +68,38 @@ public class Main extends Activity implements OnItemClickListener {
 					int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, -1);
 					switch (scanMode) {
 						case BluetoothAdapter.SCAN_MODE_NONE:
-							Log.d(TAG, "Device is hidden");
+							logToView("Device is hidden");
 							discoverableSwitch.setChecked(false);
 							break;
 						case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-							Log.d(TAG, "Device is connectable");
+							logToView("Device is connectable");
 							discoverableSwitch.setChecked(false);
 							break;
 						case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-							Log.d(TAG, "Device is discoverable");
+							logToView("Device is discoverable");
 							discoverableSwitch.setChecked(true);
 							break;
 						default:
-							Log.e(TAG, "Unknown Bluetooth scan mode: " + scanMode);
+							logErrorToView("Unknown Bluetooth scan mode: " + scanMode);
 							break;
 					}
 					break;
 				case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
-					Log.d(TAG, "Bluetooth discovery started");
+					logToView("Bluetooth discovery started");
 					break;
 				case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
-					Log.d(TAG, "Bluetooth discovery finished");
+					logToView("Bluetooth discovery finished");
 					break;
 				case BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED:
-					Log.d(TAG, "Bluetooth name changed to: " + intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME));
+					logToView("Bluetooth name changed to: " + intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME));
 					break;
 				case BluetoothDevice.ACTION_FOUND:
 					BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-					Log.d(TAG, "Bluetooth device found: " + device);
+					logToView("Bluetooth device found: " + device);
 					addDevice(device);
 					break;
 				default:
-					Log.e(TAG, "Unknown Bluetooth action: " + action);
+					logErrorToView("Unknown Bluetooth action: " + action);
 					break;
 			}
 		}
@@ -147,26 +147,24 @@ public class Main extends Activity implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		BluetoothDevice other = (BluetoothDevice) listData.get(position).get("DEVICE");
-		Log.d(TAG, "Starting client to " + other + "...");
 		startClient(other);
 	}
 
 	public void onEnableClick(View v) {
-    	Log.d(TAG, "ENABLE: " + enableSwitch.isChecked());
     	if (enableSwitch.isChecked()) {
-			Log.d(TAG, "Enabling Bluetooth...");
+			logToView("Enabling Bluetooth...");
 			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(intent, REQUEST_ENABLE);
 		}
     	else {
-			Log.d(TAG, "Disabling Bluetooth...");
+			logToView("Disabling Bluetooth...");
 			bluetoothAdapter.disable();
 		}
 	}
 
 	public void onDiscoverableClick(View v) {
     	if (discoverableSwitch.isChecked()) {
-			Log.d(TAG, "Making device dicoverable...");
+			logToView("Making device dicoverable...");
 			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 			startActivityForResult(intent, REQUEST_DISCOVERABLE);
@@ -179,7 +177,6 @@ public class Main extends Activity implements OnItemClickListener {
 
 	public void onServerClick(View v) {
 		if (serverSwitch.isChecked()) {
-			Log.d(TAG, "Starting server...");
 			startServer();
 		}
 		else {
@@ -189,7 +186,7 @@ public class Main extends Activity implements OnItemClickListener {
 	}
 
 	public void onDiscoveryClick(View v) {
-		Log.d(TAG, "Starting discovery...");
+		logToView("Starting discovery...");
 		listData.clear();
 		listAdapter.notifyDataSetChanged();
 		bluetoothAdapter.startDiscovery();
@@ -212,18 +209,17 @@ public class Main extends Activity implements OnItemClickListener {
     		@Override
     		public void run() {
     	    	try {
-    	    		Log.d(TAG, "Server accepting connection...");
-    				BluetoothServerSocket server = BluetoothAdapter
-    					.getDefaultAdapter()
-    					.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
-					Log.d(TAG, "Client creates client socket");
+					logToView("Starting server...");
+    				BluetoothServerSocket server = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+					Log.d(TAG, "Waiting for client connections...");
     				BluetoothSocket client = server.accept();
     				String line = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
-    	    		Log.d(TAG, "Server sends echo for line: " +  line);
-    				client.getOutputStream().write( ("echoed: " + line).getBytes("UTF-8") );
-    	    		Log.d(TAG, "Server is closing client and server socket");
+					logToView("Message received: " + line);
+    				client.getOutputStream().write( ("Echo of: \"" + line + "\"").getBytes("UTF-8") );
+    	    		Log.d(TAG, "Closing client and server socket");
     				client.close();
     				server.close();
+					logToView("Server stopped");
 					runOnUiThread(new Runnable(){
 						@Override
 						public void run() {
@@ -232,7 +228,7 @@ public class Main extends Activity implements OnItemClickListener {
 					});
 
     			} catch (Exception e) {
-    				Log.e(TAG, "Error in echo server", e);
+    				logErrorToView("Exception in server", e);
     			}
     		}
     	}).start();
@@ -243,29 +239,48 @@ public class Main extends Activity implements OnItemClickListener {
     		@Override
     		public void run() {
     	    	try {
-    	    		Log.d(TAG, "Client creates socket");
-    				BluetoothSocket s = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
-    	    		Log.d(TAG, "Client connects to socket");
+					logToView("Sending messages to: " + other);
+					BluetoothSocket s = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+					Log.d(TAG, "Connecting to client socket");
     	    		s.connect();
-    	    		Log.d(TAG, "Client sends message");
     				s.getOutputStream().write("Hello Bluetooth :)\r\n".getBytes("UTF-8"));
     				s.getOutputStream().flush();
-    				Log.d(TAG, "Client reads response");
-    				final String reply = new BufferedReader(new InputStreamReader(s.getInputStream())).readLine();
-    	    		Log.d(TAG, "Client is closing socket");
+    				String reply = new BufferedReader(new InputStreamReader(s.getInputStream())).readLine();
+					logToView("Received reply: " + reply);
+    	    		Log.d(TAG, "Closing client socket");
     				s.close();
-    				runOnUiThread(new Runnable(){
-    					@Override
-    					public void run() {
-    						((TextView)findViewById(R.id.log)).setText(reply);
-    					}
-    				});
     			} catch (IOException e) {
-    				Log.e(TAG, "Error in echo client", e);
+    				logErrorToView("Exception in client", e);
     			}
     		}
     	}).start();
     }
+
+	private void logToView(final String str) {
+    	Log.i(TAG, str);
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run() {
+				TextView log = findViewById(R.id.log);
+				log.setText(str + "\n" + log.getText());
+			}
+		});
+	}
+
+	private void logErrorToView(String str) {
+		logErrorToView(str, null);
+	}
+
+	private void logErrorToView(final String str, Exception e) {
+		Log.e(TAG, str, e);
+		runOnUiThread(new Runnable(){
+			@Override
+			public void run() {
+				TextView log = findViewById(R.id.log);
+				log.setText("ERROR " + str + "\n" + log.getText());
+			}
+		});
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
