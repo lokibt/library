@@ -25,6 +25,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
+// Remove "dk.itu." from the follwoing packages if you run this app on real hardware
 import dk.itu.android.bluetooth.BluetoothAdapter;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.BluetoothServerSocket;
@@ -192,18 +193,6 @@ public class Main extends Activity implements OnItemClickListener {
 		bluetoothAdapter.startDiscovery();
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private void addDevice(final BluetoothDevice device) {
-		Log.d(TAG, "Adding device to list... " + device);
-		Map<String,Object> item = new HashMap<String,Object>(){{
-			put(ITEM_KEY, "Send message to " + device.getAddress());
-			put("DEVICE", device);
-		}};
-		listData.add(item);
-		listAdapter.notifyDataSetChanged();
-	}
-
     private void startServer() {
     	new Thread(new Runnable() {
     		@Override
@@ -255,6 +244,16 @@ public class Main extends Activity implements OnItemClickListener {
     		}
     	}).start();
     }
+
+	private void addDevice(final BluetoothDevice device) {
+		Log.d(TAG, "Adding device to list... " + device);
+		Map<String,Object> item = new HashMap<String,Object>(){{
+			put(ITEM_KEY, "Send message to " + device.getAddress());
+			put("DEVICE", device);
+		}};
+		listData.add(item);
+		listAdapter.notifyDataSetChanged();
+	}
 
 	private void logToView(final String str) {
     	Log.i(TAG, str);
