@@ -18,24 +18,25 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 import dk.itu.android.bluetooth.BluetoothAdapter;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.BluetoothServerSocket;
 import dk.itu.android.bluetooth.BluetoothSocket;
 
-public class Main extends Activity {
+public class Main extends Activity implements OnItemClickListener {
 	static final String TAG = "BTEMU";
 	static final String ITEM_KEY = "key";
 	static final int REQUEST_DISCOVERABLE = 23;
 	static final int REQUEST_ENABLE = 42;
 
-	final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+	final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
@@ -45,16 +46,18 @@ public class Main extends Activity {
 					int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
 					switch (state) {
 						case BluetoothAdapter.STATE_TURNING_ON:
-							Log.d(TAG, state + ": Bluetooth will be enabled");
+							Log.d(TAG, "Bluetooth will be enabled");
 							break;
 						case BluetoothAdapter.STATE_TURNING_OFF:
-							Log.d(TAG, state + ": Bluetooth will be disabled");
+							Log.d(TAG, "Bluetooth will be disabled");
 							break;
 						case BluetoothAdapter.STATE_ON:
-							Log.d(TAG, state + ": Bluetooth was enabled");
+							Log.d(TAG, "Bluetooth was enabled");
+							enableSwitch.setChecked(true);
 							break;
 						case BluetoothAdapter.STATE_OFF:
-							Log.d(TAG, state + ": Bluetooth was disabled");
+							Log.d(TAG, "Bluetooth was disabled");
+							enableSwitch.setChecked(false);
 							break;
 						default:
 							Log.e(TAG, "Unknown Bluetooth state: " + state);
@@ -65,13 +68,16 @@ public class Main extends Activity {
 					int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, -1);
 					switch (scanMode) {
 						case BluetoothAdapter.SCAN_MODE_NONE:
-							Log.d(TAG, scanMode + ": Device is hidden");
+							Log.d(TAG, "Device is hidden");
+							discoverableSwitch.setChecked(false);
 							break;
 						case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-							Log.d(TAG, scanMode + ": Device is connectable");
+							Log.d(TAG, "Device is connectable");
+							discoverableSwitch.setChecked(false);
 							break;
 						case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-							Log.d(TAG, scanMode + ": Device is discoverable");
+							Log.d(TAG, "Device is discoverable");
+							discoverableSwitch.setChecked(true);
 							break;
 						default:
 							Log.e(TAG, "Unknown Bluetooth scan mode: " + scanMode);
@@ -89,7 +95,7 @@ public class Main extends Activity {
 					break;
 				case BluetoothDevice.ACTION_FOUND:
 					BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-					Log.i(TAG, "Bluetooth device found: " + device);
+					Log.d(TAG, "Bluetooth device found: " + device);
 					addDevice(device);
 					break;
 				default:
@@ -99,9 +105,12 @@ public class Main extends Activity {
 		}
 	};
 
-	private SimpleAdapter listAdapter;
-	private List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 	private BluetoothAdapter bluetoothAdapter;
+	private Switch discoverableSwitch;
+	private Switch enableSwitch;
+	private Switch serverSwitch;
+	private List<Map<String,Object>> listData = new ArrayList<Map<String,Object>>();
+	private SimpleAdapter listAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -116,81 +125,88 @@ public class Main extends Activity {
 		filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
 		filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
-		registerReceiver(mReceiver, filter);
+		registerReceiver(receiver, filter);
 
-		ListView deviceList = findViewById(R.id.Devices);
-		listAdapter = new SimpleAdapter(this, list, R.layout.row, new String[]{ITEM_KEY}, new int[]{R.id.list_value});
+		discoverableSwitch = findViewById(R.id.discoverable_switch);
+		enableSwitch = findViewById(R.id.enable_switch);
+		serverSwitch = findViewById(R.id.server_switch);
+
+		listAdapter = new SimpleAdapter(this, listData, R.layout.row, new String[]{ITEM_KEY}, new int[]{R.id.list_value});
+		ListView deviceList = findViewById(R.id.device_list);
 		deviceList.setAdapter(listAdapter);
-
-		Button enableBtn = findViewById(R.id.Enable);
-		Button disableBtn = findViewById(R.id.Disable);
-		Button discoverableBtn = findViewById(R.id.Discoverable);
-		Button discoveryBtn = findViewById(R.id.Discovery);
-		Button serverBtn = findViewById(R.id.StartServer);
-
-		enableBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.i(TAG, "Enabling emulator...");
-				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				startActivityForResult(enableBtIntent, REQUEST_ENABLE);
-			}
-		});
-
-		disableBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.i(TAG, "Disabling emulator...");
-				bluetoothAdapter.disable();
-			}
-		});
-
-		discoverableBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.i(TAG, "Making device dicoverable...");
-				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-				startActivityForResult(enableBtIntent, REQUEST_DISCOVERABLE);
-			}
-		});
-
-		discoveryBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.i(TAG, "Starting discovery...");
-				list.clear();
-				listAdapter.notifyDataSetChanged();
-				bluetoothAdapter.startDiscovery();
-			}
-		});
-
-		serverBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startServer();
-			}
-		});
-
-		deviceList.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				BluetoothDevice other = (BluetoothDevice)list.get(position).get("DEVICE");
-				Log.d(TAG, "other device is: " + other);
-				startClient(other);
-			}
-		});
+		deviceList.setOnItemClickListener(this);
     }
+
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+		bluetoothAdapter.disable();
+		unregisterReceiver(receiver);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		BluetoothDevice other = (BluetoothDevice) listData.get(position).get("DEVICE");
+		Log.d(TAG, "Starting client to " + other + "...");
+		startClient(other);
+	}
+
+	public void onEnableClick(View v) {
+    	Log.d(TAG, "ENABLE: " + enableSwitch.isChecked());
+    	if (enableSwitch.isChecked()) {
+			Log.d(TAG, "Enabling Bluetooth...");
+			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(intent, REQUEST_ENABLE);
+		}
+    	else {
+			Log.d(TAG, "Disabling Bluetooth...");
+			bluetoothAdapter.disable();
+		}
+	}
+
+	public void onDiscoverableClick(View v) {
+    	if (discoverableSwitch.isChecked()) {
+			Log.d(TAG, "Making device dicoverable...");
+			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+			intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+			startActivityForResult(intent, REQUEST_DISCOVERABLE);
+		}
+    	else {
+			Toast.makeText(this, "Discoverable state will be automatically revoked after 300 seconds.", Toast.LENGTH_SHORT).show();
+			discoverableSwitch.setChecked(true);
+		}
+	}
+
+	public void onServerClick(View v) {
+		if (serverSwitch.isChecked()) {
+			Log.d(TAG, "Starting server...");
+			startServer();
+		}
+		else {
+			Toast.makeText(this, "Server will be disabled after a message has been received.", Toast.LENGTH_SHORT).show();
+			serverSwitch.setChecked(true);
+		}
+	}
+
+	public void onDiscoveryClick(View v) {
+		Log.d(TAG, "Starting discovery...");
+		listData.clear();
+		listAdapter.notifyDataSetChanged();
+		bluetoothAdapter.startDiscovery();
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private void addDevice(final BluetoothDevice device) {
-    	Log.d(TAG, "got device! " + device);
-    	Map<String,Object> item = new HashMap<String,Object>(){{
-    		put(ITEM_KEY, device.getName() + " - " + device.getAddress());
-    		put("DEVICE", device);
-    	}};
-    	list.add(item);
-    	listAdapter.notifyDataSetChanged();
-    }
-    
+		Log.d(TAG, "Adding device to list... " + device);
+		Map<String,Object> item = new HashMap<String,Object>(){{
+			put(ITEM_KEY, "Send message to " + device.getAddress());
+			put("DEVICE", device);
+		}};
+		listData.add(item);
+		listAdapter.notifyDataSetChanged();
+	}
+
     private void startServer() {
     	new Thread(new Runnable() {
     		@Override
@@ -208,6 +224,13 @@ public class Main extends Activity {
     	    		Log.d(TAG, "Server is closing client and server socket");
     				client.close();
     				server.close();
+					runOnUiThread(new Runnable(){
+						@Override
+						public void run() {
+							serverSwitch.setChecked(false);
+						}
+					});
+
     			} catch (Exception e) {
     				Log.e(TAG, "Error in echo server", e);
     			}
@@ -234,7 +257,7 @@ public class Main extends Activity {
     				runOnUiThread(new Runnable(){
     					@Override
     					public void run() {
-    						((TextView)findViewById(R.id.EchoResponse)).setText(reply);
+    						((TextView)findViewById(R.id.log)).setText(reply);
     					}
     				});
     			} catch (IOException e) {
