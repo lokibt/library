@@ -16,7 +16,7 @@ import android.util.Log;
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.emulation.BluetoothDeviceService;
 
-public class Discovery extends NoParamsBaseCommand {
+public class Discovery extends BaseCommand {
 	final static String TAG = "BTCMD_DISCOVERY";
 
 	public Discovery() {

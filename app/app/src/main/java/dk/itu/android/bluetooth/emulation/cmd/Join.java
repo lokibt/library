@@ -23,7 +23,6 @@ public class Join extends BaseCommand {
 	protected void sendParameters(OutputStream out) throws IOException {
 		sendParameter( "tcp.address","10.0.2.2",out );
 		sendParameter( "device.name", dk.itu.android.bluetooth.BluetoothAdapter.getDefaultAdapter().getName(), out);
-//		sendParameter( "bt.address", dk.itu.android.bluetooth.BluetoothAdapter.getDefaultAdapter().getAddress(), out );
 	}
 
 }
