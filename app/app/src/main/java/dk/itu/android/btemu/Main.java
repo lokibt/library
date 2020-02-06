@@ -158,6 +158,8 @@ public class Main extends Activity implements OnItemClickListener {
 			startActivityForResult(intent, REQUEST_ENABLE);
 		}
     	else {
+			discoverableSwitch.setChecked(false);
+			serverSwitch.setChecked(false);
 			logToView("Disabling Bluetooth...");
 			bluetoothAdapter.disable();
 		}
@@ -165,14 +167,15 @@ public class Main extends Activity implements OnItemClickListener {
 
 	public void onDiscoverableClick(View v) {
     	if (discoverableSwitch.isChecked()) {
-			logToView("Making device dicoverable...");
+			enableSwitch.setChecked(true);
+			logToView("Making device discoverable...");
 			Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 			startActivityForResult(intent, REQUEST_DISCOVERABLE);
 		}
     	else {
-			Toast.makeText(this, "Discoverable state will be automatically revoked after 300 seconds.", Toast.LENGTH_SHORT).show();
 			discoverableSwitch.setChecked(true);
+			Toast.makeText(this, "Discoverable state will be automatically revoked after 300 seconds.", Toast.LENGTH_SHORT).show();
 		}
 	}
 
