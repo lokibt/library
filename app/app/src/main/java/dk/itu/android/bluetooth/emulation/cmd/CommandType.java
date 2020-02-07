@@ -1,15 +1,17 @@
 package dk.itu.android.bluetooth.emulation.cmd;
 
 public enum CommandType {
-
 	JOIN(0),
 	LEAVE(1),
 	DISCOVERY(2),
-	MODIFYSERVICE(3)
-	;
+	ADDSERVICE(3),
+	REMOVESERVICE(4),
+	CONNECT(5),
+	LINK(6);
 	
 	int intRepr;
-	private CommandType(int intRepr) {
+
+	CommandType(int intRepr) {
 		this.intRepr = intRepr;
 	}
 }

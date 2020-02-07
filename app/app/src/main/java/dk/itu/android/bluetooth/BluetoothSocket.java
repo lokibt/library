@@ -2,51 +2,68 @@ package dk.itu.android.bluetooth;
 
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.UUID;
 
-public class BluetoothSocket {
+import dk.itu.android.bluetooth.emulation.cmd.CommandCallback;
+import dk.itu.android.bluetooth.emulation.cmd.Connect;
 
-	//this is provided if the socket was created using the bt socket server
-	Socket socket = null;
+public class BluetoothSocket implements CommandCallback {
+	private static final String TAG = "BTSOCKET";
+
+	private Socket socket;
+	private UUID uuid;
+	private BluetoothDevice remote;
+	private ByteArrayOutputStream outBuffer;
 	
-	//these are provided if device.open bla bla was called
-	String ip;
-	int port;
-	
-	BluetoothDevice remote;
-	
-	protected BluetoothSocket( String ip,int port,BluetoothDevice device ) {
-		this.ip = ip;
-		this.port = port;
+	protected BluetoothSocket(BluetoothDevice device, UUID uuid) {
+		this.socket = null;
 		this.remote = device;
+		this.uuid = uuid;
+		this.outBuffer = null;
 	}
-	public BluetoothSocket(Socket s, BluetoothDevice device){
-		this.socket = s;
+	public BluetoothSocket(Socket socket, BluetoothDevice device, UUID uuid) {
+		this.socket = socket;
 		this.remote = device;
+		this.uuid = uuid;
+		this.outBuffer = null;
 	}
 	
 	public void close() throws IOException {
-		socket.close();
+		// TODO Disconnect properly
+		this.socket.close();
+		this.socket = null;
 	}
+
 	public void connect() throws IOException {
-		Log.d("BTSOCKET", "Connecting to " + ip + "; " +port);
 		if(socket == null) {
-			socket = new Socket(ip,port);
-			OutputStream os = getOutputStream();
-			os.write( (BluetoothAdapter.getDefaultAdapter().getAddress()+"\n").getBytes() );
-			os.flush();
+			Log.d(TAG, "Connecting to " + this.uuid.toString() + " on " + this.remote.getAddress());
+			Connect connectCmd = new Connect(this.uuid, this);
+			this.socket = connectCmd.open();
+			new Thread(connectCmd).start();
 		}
 	}
+
 	public InputStream getInputStream() throws IOException {
 		return socket.getInputStream();
 	}
+
 	public OutputStream getOutputStream() throws IOException {
 		return socket.getOutputStream();
 	}
+
 	public BluetoothDevice getRemoteDevice() {
 		return remote;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public void onFinish() {
+		Log.d(TAG, "connected :)");
 	}
 }

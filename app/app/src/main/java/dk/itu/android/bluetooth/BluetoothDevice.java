@@ -62,11 +62,11 @@ public class BluetoothDevice implements Parcelable {
 	public static final int ERROR = 0x80000000;
 
 	public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) throws IOException {
-		String uuids = uuid.toString();
+		String uuidStr = uuid.toString();
 		for(BluetoothDeviceService s : services) {
-			if(s.getUuid().equals(uuids)) {
-				Log.i("BT_DEVICE", "found service "+s.getUuid()+" on device "+addr);
-				return new BluetoothSocket(this.tcpAddr,s.getTcpPort(),this);
+			if(s.getUuid().equals(uuidStr)) {
+				Log.i("BT_DEVICE", "found service " + uuidStr + " on device " + this.addr);
+				return new BluetoothSocket(this, uuid);
 			}
 				
 		}

@@ -202,15 +202,16 @@ public class Main extends Activity implements OnItemClickListener {
     		public void run() {
     	    	try {
 					logToView("Starting server...");
-    				BluetoothServerSocket server = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+    				BluetoothServerSocket listen = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
 					Log.d(TAG, "Waiting for client connections...");
-    				BluetoothSocket client = server.accept();
+    				BluetoothSocket client = listen.accept();
     				String line = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
 					logToView("Message received: " + line);
-    				client.getOutputStream().write( ("Echo of: \"" + line + "\"").getBytes("UTF-8") );
-    	    		Log.d(TAG, "Closing client and server socket");
+    				client.getOutputStream().write( ("Echo of: \"" + line + "\"\n").getBytes("UTF-8") );
+					client.getOutputStream().flush();
+    	    		Log.d(TAG, "Closing client and listen socket");
     				client.close();
-    				server.close();
+    				listen.close(); // TODO fix me
 					logToView("Server stopped");
 					runOnUiThread(new Runnable(){
 						@Override
@@ -235,7 +236,7 @@ public class Main extends Activity implements OnItemClickListener {
 					BluetoothSocket s = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
 					Log.d(TAG, "Connecting to client socket");
     	    		s.connect();
-    				s.getOutputStream().write("Hello Bluetooth :)\r\n".getBytes("UTF-8"));
+    				s.getOutputStream().write("Hello Bluetooth :)\n".getBytes("UTF-8"));
     				s.getOutputStream().flush();
     				String reply = new BufferedReader(new InputStreamReader(s.getInputStream())).readLine();
 					logToView("Received reply: " + reply);

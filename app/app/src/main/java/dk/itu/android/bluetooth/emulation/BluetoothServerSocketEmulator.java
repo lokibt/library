@@ -2,9 +2,10 @@ package dk.itu.android.bluetooth.emulation;
 
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ServerSocket;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -14,48 +15,45 @@ import java.util.concurrent.TimeUnit;
 
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.BluetoothSocket;
-import dk.itu.android.bluetooth.emulation.cmd.ModifyService;
+import dk.itu.android.bluetooth.emulation.cmd.AddService;
+import dk.itu.android.bluetooth.emulation.cmd.Link;
+import dk.itu.android.bluetooth.emulation.cmd.RemoveService;
 
 public class BluetoothServerSocketEmulator {
 	private static final String TAG = "BTEMU_SERVERSOCKET";
 
-	private static int nextPort = 8124;
-
-	private ServerSocket socket;
-	private int port;
+	private Socket socket;
 	private UUID uuid;
 
 	public BluetoothServerSocketEmulator(UUID uuid) {
-		this.port = getNextPort();
-		this.uuid = uuid;
 		try {
-			this.socket = new ServerSocket(port);
-			addService(uuid, port);
+			this.uuid = uuid;
+			AddService addCmd = new AddService(this.uuid);
+			this.socket = addCmd.open();
+			new Thread(addCmd).start();
 		} catch (IOException e) {
-			Log.e(TAG, "Cannot create server socket", e);
+			Log.e(TAG, "Cannot create Bluetooth server socket", e);
 		}
 	}
 
 	public BluetoothSocket accept() throws IOException {
-		Log.d(TAG, "Waiting for incoming connections on port " + socket.getInetAddress() + "; " + socket.getLocalSocketAddress() + ";" + socket.getLocalPort());
+		Log.d(TAG, "Waiting for an incoming connection...");
 		// blocks until a connection is established
-		Socket s = socket.accept();
-		return createBTSocket(s);
+		return this.waitForConnection();
 	}
 
 	public BluetoothSocket accept(int timeout) throws IOException {
-		FutureTask<Socket> future = new FutureTask<Socket>(new Callable<Socket>() {
+		FutureTask<BluetoothSocket> future = new FutureTask<BluetoothSocket>(new Callable<BluetoothSocket>() {
 			@Override
-			public Socket call() throws Exception {
+			public BluetoothSocket call() throws IOException {
 				// blocks until a connection is established
-				return socket.accept();
+				return BluetoothServerSocketEmulator.this.waitForConnection();
 			}
 		});
 		try {
-			Log.d(TAG, "Waiting for incoming connections for " + timeout + " seconds...");
+			Log.d(TAG, "Waiting for an incoming connection for " + timeout + " seconds...");
 			Executors.newFixedThreadPool(1).execute(future);
-			Socket s = future.get(timeout, TimeUnit.SECONDS);
-			return createBTSocket(s);
+			return future.get(timeout, TimeUnit.SECONDS);
 		} catch(Exception e) {
 			Log.e(TAG, "Timeout while waiting for incoming connections",e);
 			throw new IOException("timed out");
@@ -63,49 +61,22 @@ public class BluetoothServerSocketEmulator {
 	}
 
 	public void close() throws IOException {
-		removeService(this.uuid, this.port);
-		socket.close();
+		// TODO Close socket properly
+		this.socket.close();
+		new Thread(new RemoveService(this.uuid)).start();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private BluetoothSocket createBTSocket(Socket s) throws IOException {
-		InputStream is = s.getInputStream();
-		Log.i(TAG, "creating btsocket, reading btaddr...");
-		int read;
-		byte[] buf = new byte[25];
-
-		int idx = 0;
-		do {
-			read = is.read();
-			buf[idx] = (byte)read;
-			idx++;
-		} while( '\n' != read );
-
-		String btaddr = new String(buf,0,idx-1);
-
-		Log.i(TAG, "received btaddr: " + btaddr);
-		BluetoothDevice d = BluetoothAdapterEmulator.getInstance().getRemoteDevice(btaddr.trim());
-		return new BluetoothSocket(s, d);
-	}
-
-	private void addService(UUID uuid, int port ) {
-		modifyService(uuid, port, true);
-	}
-
-	private void removeService(UUID uuid, int port ) {
-		modifyService(uuid, port, false);
-	}
-
-	private void modifyService(UUID uuid, int port, boolean add ) {
-		try {
-			new Thread(new ModifyService(uuid.toString(), port, add)).start();
-		} catch (Exception e) {
-			Log.e(TAG, "Cannot start ModifyService() thread", e);
-		}
-	}
-
-	private int getNextPort() {
-		return nextPort++;
+	private BluetoothSocket waitForConnection() throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		String btaddr = br.readLine();
+		String connId = br.readLine();
+		Log.i(TAG, "Incoming connection from " + btaddr + ": " + connId);
+		Link linkCmd = new Link(connId);
+		Socket socket = linkCmd.open();
+		new Thread(linkCmd).start();
+		BluetoothDevice device = BluetoothAdapterEmulator.getInstance().getRemoteDevice(btaddr.trim());
+		return new BluetoothSocket(socket, device, this.uuid);
 	}
 }

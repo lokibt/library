@@ -2,27 +2,24 @@ package dk.itu.android.bluetooth.emulation.cmd;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 
-public class Join extends BaseCommand {
+import dk.itu.android.bluetooth.emulation.BluetoothAdapterEmulator;
+
+public class Join extends Command {
 
 	public Join() {
-       	super(CommandType.JOIN);
+       	super(CommandType.JOIN, null);
 	}
 
 	@Override
-	protected void readResponse(InputStream in) throws IOException {
+	protected void readResponse() throws IOException {
 		//get the emulator port number
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		emulator.onJoinReturned();
+		BluetoothAdapterEmulator.getInstance().onJoinReturned();
 	}
 
 	@Override
-	protected void sendParameters(OutputStream out) throws IOException {
-		sendParameter( "tcp.address","10.0.2.2",out );
-		sendParameter( "device.name", dk.itu.android.bluetooth.BluetoothAdapter.getDefaultAdapter().getName(), out);
-	}
+	protected void sendParameters() throws IOException { }
 
 }

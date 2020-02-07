@@ -1,23 +1,23 @@
 package dk.itu.android.bluetooth.emulation.cmd;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-public class Leave extends BaseCommand {
+import dk.itu.android.bluetooth.emulation.BluetoothAdapterEmulator;
+
+public class Leave extends Command {
 	
 	public Leave() {
-		super(CommandType.LEAVE);
+		super(CommandType.LEAVE, null);
 	}
 
 	@Override
-	protected void readResponse(InputStream in) throws IOException {
+	protected void readResponse() throws IOException {
 		//don't care about response data
-		emulator.onLeaveReturned();
+		BluetoothAdapterEmulator.getInstance().onLeaveReturned();
 	}
 
 	@Override
-	protected void sendParameters(OutputStream out) throws IOException {
+	protected void sendParameters() throws IOException {
 	}
 
 }
