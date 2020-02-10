@@ -4,10 +4,9 @@ public enum CommandType {
 	JOIN(0),
 	LEAVE(1),
 	DISCOVERY(2),
-	ADDSERVICE(3),
-	REMOVESERVICE(4),
-	CONNECT(5),
-	LINK(6);
+	ANNOUNCE(3),
+	CONNECT(4),
+	LINK(5);
 	
 	int intRepr;
 

@@ -4,7 +4,6 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.UUID;
@@ -15,9 +14,8 @@ import java.util.concurrent.TimeUnit;
 
 import dk.itu.android.bluetooth.BluetoothDevice;
 import dk.itu.android.bluetooth.BluetoothSocket;
-import dk.itu.android.bluetooth.emulation.cmd.AddService;
+import dk.itu.android.bluetooth.emulation.cmd.Announce;
 import dk.itu.android.bluetooth.emulation.cmd.Link;
-import dk.itu.android.bluetooth.emulation.cmd.RemoveService;
 
 public class BluetoothServerSocketEmulator {
 	private static final String TAG = "BTEMU_SERVERSOCKET";
@@ -28,7 +26,7 @@ public class BluetoothServerSocketEmulator {
 	public BluetoothServerSocketEmulator(UUID uuid) {
 		try {
 			this.uuid = uuid;
-			AddService addCmd = new AddService(this.uuid);
+			Announce addCmd = new Announce(this.uuid);
 			this.socket = addCmd.open();
 			new Thread(addCmd).start();
 		} catch (IOException e) {
@@ -61,9 +59,7 @@ public class BluetoothServerSocketEmulator {
 	}
 
 	public void close() throws IOException {
-		// TODO Close socket properly
 		this.socket.close();
-		new Thread(new RemoveService(this.uuid)).start();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////

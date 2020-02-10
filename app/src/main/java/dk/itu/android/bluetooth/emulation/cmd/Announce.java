@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.UUID;
 
-public class AddService extends Command {
+public class Announce extends Command {
 	UUID uuid;
 
-	public AddService(UUID uuid) {
-		super(CommandType.ADDSERVICE, null);
+	public Announce(UUID uuid) {
+		super(CommandType.ANNOUNCE, null);
 		this.uuid = uuid;
 	}
 
