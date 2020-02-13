@@ -6,21 +6,21 @@ import java.util.UUID;
 import dk.itu.android.bluetooth.emulation.BluetoothServerSocketEmulator;
 
 public class BluetoothServerSocket {
-	private BluetoothServerSocketEmulator emulator;
-	
-	public BluetoothServerSocket(UUID uuid) {
-		this.emulator = new BluetoothServerSocketEmulator(uuid);
-	}
+    private BluetoothServerSocketEmulator emulator;
+    
+    public BluetoothServerSocket(UUID uuid) {
+        this.emulator = new BluetoothServerSocketEmulator(uuid);
+    }
 
-	public BluetoothSocket accept() throws IOException {
-		return emulator.accept();
-	}
+    public BluetoothSocket accept() throws IOException {
+        return emulator.accept();
+    }
 
-	public BluetoothSocket accept(int timeout) throws IOException {
-		return emulator.accept(timeout);
-	}
+    public BluetoothSocket accept(int timeout) throws IOException {
+        return emulator.accept(timeout);
+    }
 
-	public void close() throws IOException {
-		emulator.close();
-	}
+    public void close() throws IOException {
+        emulator.close();
+    }
 }

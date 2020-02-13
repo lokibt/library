@@ -5,24 +5,24 @@ import java.net.Socket;
 import java.util.UUID;
 
 public class Announce extends Command {
-	UUID uuid;
+    UUID uuid;
 
-	public Announce(UUID uuid) {
-		super(CommandType.ANNOUNCE, null);
-		this.uuid = uuid;
-	}
+    public Announce(UUID uuid) {
+        super(CommandType.ANNOUNCE, null);
+        this.uuid = uuid;
+    }
 
-	@Override
-	public void close() throws IOException {
-		// the connection shall stay open
-	}
+    @Override
+    public void close() throws IOException {
+        // the connection shall stay open
+    }
 
-	@Override
-	protected void readResponse() throws IOException { }
+    @Override
+    protected void readResponse() throws IOException { }
 
-	@Override
-	protected void sendParameters() throws IOException {
-		sendParameter(this.uuid.toString());
-	}
+    @Override
+    protected void sendParameters() throws IOException {
+        sendParameter(this.uuid.toString());
+    }
 
 }
