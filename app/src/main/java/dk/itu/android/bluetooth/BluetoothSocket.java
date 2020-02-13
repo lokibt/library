@@ -34,9 +34,10 @@ public class BluetoothSocket implements CommandCallback {
     }
     
     public void close() throws IOException {
-        // TODO Disconnect properly
-        this.socket.close();
-        this.socket = null;
+        if(socket != null) {
+            this.socket.close();
+            this.socket = null;
+        }
     }
 
     public void connect() throws IOException {
