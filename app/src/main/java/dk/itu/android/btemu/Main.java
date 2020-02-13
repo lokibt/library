@@ -196,20 +196,26 @@ public class Main extends Activity implements OnItemClickListener {
 
     public void onDiscoveryClick(View v) {
         logToView("Starting discovery...");
-        listData.clear();
-        listAdapter.notifyDataSetChanged();
-        bluetoothAdapter.startDiscovery();
+        if (bluetoothAdapter.startDiscovery()) {
+            listData.clear();
+            listAdapter.notifyDataSetChanged();
+        }
+        else {
+            Toast.makeText(this, "Bluetooth needs to be enabled first", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void startServer() {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                BluetoothServerSocket listenSocket = null;
+                BluetoothSocket dataSocket = null;
                 try {
                     logToView("Starting server...");
-                    BluetoothServerSocket listenSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+                    listenSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
                     Log.d(TAG, "Waiting for client connections...");
-                    BluetoothSocket dataSocket = listenSocket.accept();
+                    dataSocket = listenSocket.accept();
                     InputStream inStream = dataSocket.getInputStream();
                     OutputStream outStream = dataSocket.getOutputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
@@ -238,20 +244,29 @@ public class Main extends Activity implements OnItemClickListener {
 
                     writer.write("Goodbye!\n");
                     writer.flush();
-
-                    Log.d(TAG, "Closing client and listen socket");
-                    dataSocket.close();
-                    listenSocket.close(); // TODO fix me
-                    logToView("Server stopped");
+                } catch (Exception e) {
+                    logErrorToView("Exception in server", e);
+                }
+                finally {
                     runOnUiThread(new Runnable(){
                         @Override
                         public void run() {
                             serverSwitch.setChecked(false);
                         }
                     });
-
-                } catch (Exception e) {
-                    logErrorToView("Exception in server", e);
+                    try {
+                        Log.d(TAG, "Closing data and listen socket");
+                        if (dataSocket != null) {
+                            dataSocket.close();
+                        }
+                        if (listenSocket != null) {
+                            listenSocket.close();
+                        }
+                        logToView("Server stopped");
+                    }
+                    catch (Exception e2) {
+                        logErrorToView("Exception when stopping server", e2);
+                    }
                 }
             }
         }).start();
@@ -261,9 +276,10 @@ public class Main extends Activity implements OnItemClickListener {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                BluetoothSocket socket = null;
                 try {
                     logToView("Sending messages to: " + other);
-                    BluetoothSocket socket = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+                    socket = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
                     Log.d(TAG, "Connecting to client socket");
                     socket.connect();
                     InputStream inStream = socket.getInputStream();
@@ -303,6 +319,24 @@ public class Main extends Activity implements OnItemClickListener {
                     socket.close();
                 } catch (IOException e) {
                     logErrorToView("Exception in client", e);
+                }
+                finally {
+                    runOnUiThread(new Runnable(){
+                        @Override
+                        public void run() {
+                            serverSwitch.setChecked(false);
+                        }
+                    });
+                    try {
+                        Log.d(TAG, "Closing client socket");
+                        if (socket != null) {
+                            socket.close();
+                        }
+                        logToView("Client stopped");
+                    }
+                    catch (Exception e2) {
+                        logErrorToView("Exception when stopping client", e2);
+                    }
                 }
             }
         }).start();

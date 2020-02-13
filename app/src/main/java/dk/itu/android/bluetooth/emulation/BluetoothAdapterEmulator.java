@@ -193,6 +193,7 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
     public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
         checkPermission();
+        checkEnabled();
         return new BluetoothServerSocket(uuid);
     }
 
@@ -245,6 +246,9 @@ public class BluetoothAdapterEmulator implements CommandListener {
 
     public boolean startDiscovery() {
         checkAdminPermission();
+        if (!isEnabled()) {
+            return false;
+        }
         try {
             setDiscovering(true);
             new Thread(new Discovery()).start();
@@ -296,6 +300,13 @@ public class BluetoothAdapterEmulator implements CommandListener {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void checkEnabled() throws IOException {
+        if (!isEnabled()) {
+            Log.e(TAG, "Bluetooth is not enabled");
+            throw new IOException("Bluetooth is not enabled");
+        }
+    }
 
     private void checkPermission() {
         if(ContextCompat.checkSelfPermission(context,Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_DENIED) {
