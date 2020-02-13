@@ -52,7 +52,8 @@ public abstract class Command implements Runnable {
 
 	public Socket open() throws IOException  {
 		Log.d(TAG, "opening socket and streams....");
-		this.socket = new Socket("10.0.2.2", 8199);
+		//this.socket = new Socket("10.0.2.2", 8199);
+		this.socket = new Socket("letorbi.de", 8199);
 		this.out = this.socket.getOutputStream();
 		this.in = this.socket.getInputStream();
 		return this.socket;
