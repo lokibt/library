@@ -1,8 +1,12 @@
 package dk.itu.android.btemu;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -202,16 +207,41 @@ public class Main extends Activity implements OnItemClickListener {
     		public void run() {
     	    	try {
 					logToView("Starting server...");
-    				BluetoothServerSocket listen = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+    				BluetoothServerSocket listenSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
 					Log.d(TAG, "Waiting for client connections...");
-    				BluetoothSocket client = listen.accept();
-    				String line = new BufferedReader(new InputStreamReader(client.getInputStream())).readLine();
+    				BluetoothSocket dataSocket = listenSocket.accept();
+					InputStream inStream = dataSocket.getInputStream();
+					OutputStream outStream = dataSocket.getOutputStream();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream));
+
+					/*writer.write("Hello :)\n");
+					writer.flush();
+
+					writer.write("How are you?\n");
+					writer.flush();*/
+
+    				String line = reader.readLine();
 					logToView("Message received: " + line);
-    				client.getOutputStream().write( ("Echo of: \"" + line + "\"\n").getBytes("UTF-8") );
-					client.getOutputStream().flush();
+
+					writer.write("1 Echo of: \"" + line + "\"\n");
+					writer.flush();
+
+					line = reader.readLine();
+					logToView("Message received: " + line);
+
+					writer.write("2 Echo of: \"" + line + "\"\n");
+					writer.flush();
+
+					writer.write("It was nice talking to you.\n");
+					writer.flush();
+
+					writer.write("Goodbye!\n");
+					writer.flush();
+
     	    		Log.d(TAG, "Closing client and listen socket");
-    				client.close();
-    				listen.close(); // TODO fix me
+    				dataSocket.close();
+    				listenSocket.close(); // TODO fix me
 					logToView("Server stopped");
 					runOnUiThread(new Runnable(){
 						@Override
@@ -233,15 +263,44 @@ public class Main extends Activity implements OnItemClickListener {
     		public void run() {
     	    	try {
 					logToView("Sending messages to: " + other);
-					BluetoothSocket s = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
+					BluetoothSocket socket = other.createRfcommSocketToServiceRecord(UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
 					Log.d(TAG, "Connecting to client socket");
-    	    		s.connect();
-    				s.getOutputStream().write("Hello Bluetooth :)\n".getBytes("UTF-8"));
-    				s.getOutputStream().flush();
-    				String reply = new BufferedReader(new InputStreamReader(s.getInputStream())).readLine();
+    	    		socket.connect();
+					InputStream inStream = socket.getInputStream();
+					OutputStream outStream = socket.getOutputStream();
+					BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream));
+
+					/*String reply = reader.readLine();
 					logToView("Received reply: " + reply);
+
+					reply = reader.readLine();
+					logToView("Received reply: " + reply);*/
+
+					Log.d(TAG, "Writing message...");
+					writer.write("1 Hello Bluetooth :)\n");
+					writer.flush();
+					Log.d(TAG, "Writing message done");
+
+    				String reply = reader.readLine();
+					logToView("Received reply: " + reply);
+
+					Log.d(TAG, "Writing message...");
+					writer.write("2 Hello Bluetooth :)\n");
+					writer.flush();
+					Log.d(TAG, "Writing message done");
+
+					reply = reader.readLine();
+					logToView("Received reply: " + reply);
+
+					reply = reader.readLine();
+					logToView("Received reply: " + reply);
+
+					reply = reader.readLine();
+					logToView("Received reply: " + reply);
+
     	    		Log.d(TAG, "Closing client socket");
-    				s.close();
+    				socket.close();
     			} catch (IOException e) {
     				logErrorToView("Exception in client", e);
     			}
