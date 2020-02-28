@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
@@ -164,8 +165,14 @@ public class BluetoothAdapterEmulator implements CommandListener {
             }
         }
         if (device == null) {
-            Log.e(TAG, "Device address not found: " + address);
-            Log.i(TAG, "TODO Create a device anyway");
+            Log.d(TAG, "Device address not found: " + address);
+            Parcel parcel = Parcel.obtain();
+            parcel.writeString(address);
+            parcel.writeString("10.0.2.2"); // TODO remove me
+            parcel.writeString(this.generateName(address));
+            parcel.writeParcelableArray(new BluetoothDeviceService[]{}, 0);
+            parcel.setDataPosition(0);
+            device = BluetoothDevice.CREATOR.createFromParcel(parcel);
         }
         Log.d(TAG, "Returning Bluetooth device: " + device);
         return device;
