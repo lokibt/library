@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+      android:id="@+id/message"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:text="A dialog message."
+      android:layout_weight="1"
+      android:padding="10dp" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+      android:orientation="horizontal"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:gravity="end">
+
+      <Button
+        android:id="@+id/deny_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00FFFFFF"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:onClick="onDeny"
+        android:text="DENY"
+        android:textColor="@color/colorPrimary"
+        android:padding="10dp" />
+
+
+      <Button
+        android:id="@+id/allow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00FFFFFF"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:onClick="onAllow"
+        android:text="ALLOW"
+        android:textColor="@color/colorPrimary"
+        android:padding="10dp" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

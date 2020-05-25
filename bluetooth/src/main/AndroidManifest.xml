@@ -1,0 +1,26 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.lokibt.bluetooth">
+
+  <!-- needs internet permission to contact the discovery server... -->
+  <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+  <application>
+
+    <activity
+      android:name="com.lokibt.bluetooth.emulation.BluetoothDialog"
+      android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar"
+      android:excludeFromRecents="true"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="dk.android.bluetooth.adapter.action.REQUEST_ENABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+      <intent-filter>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <action android:name="dk.android.bluetooth.adapter.action.REQUEST_DISCOVERABLE"/>
+      </intent-filter>
+    </activity>
+
+  </application>
+
+</manifest>

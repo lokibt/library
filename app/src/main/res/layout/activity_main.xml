@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+
+  <Switch
+    android:id="@+id/enable_switch"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:onClick="onEnableClick"
+    android:paddingTop="20dp"
+    android:paddingBottom="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:text="Bluetooth enabled" />
+
+  <Switch
+    android:id="@+id/discoverable_switch"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:onClick="onDiscoverableClick"
+    android:padding="10dp"
+    android:text="Device discoverable" />
+
+  <Switch
+    android:id="@+id/server_switch"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:onClick="onServerClick"
+    android:paddingTop="10dp"
+    android:paddingBottom="20dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:text="Start server" />
+
+  <Button
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:onClick="onDiscoveryClick"
+    android:text="Discover devices" />
+
+  <ListView
+    android:id="@+id/device_list"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:choiceMode="singleChoice"
+    android:divider="@null"
+    android:dividerHeight="0dp" />
+
+  <ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:paddingTop="10dp">
+
+    <TextView
+      android:id="@+id/log"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:paddingLeft="10dp"
+      android:paddingRight="10dp"
+      android:paddingBottom="10dp"
+      android:text="BluetoothEmulator has been started." />
+
+  </ScrollView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="message_enable">An app wants to turn Bluetooth ON for this device.</string>
+  <string name="message_discoverable">An app wants to make your phone visible to other Bluetooth devices for %1$d seconds.</string>
+</resources>
