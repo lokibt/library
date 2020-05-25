@@ -12,12 +12,12 @@
       android:excludeFromRecents="true"
       android:exported="true">
       <intent-filter>
-        <action android:name="dk.android.bluetooth.adapter.action.REQUEST_ENABLE"/>
+        <action android:name="com.lokibt.bluetooth.adapter.action.REQUEST_ENABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
       <intent-filter>
         <category android:name="android.intent.category.DEFAULT"/>
-        <action android:name="dk.android.bluetooth.adapter.action.REQUEST_DISCOVERABLE"/>
+        <action android:name="com.lokibt.bluetooth.adapter.action.REQUEST_DISCOVERABLE"/>
       </intent-filter>
     </activity>
 

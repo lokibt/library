@@ -42,19 +42,19 @@ public class BluetoothDevice implements Parcelable {
     }
 
     //constants
-    public static final String ACTION_ACL_CONNECTED = "dk.android.bluetooth.device.action.ACL_CONNECTED";
-    public static final String ACTION_ACL_DISCONNECGTED = "dk.android.bluetooth.device.action.ACL_DISCONNECTED";
-    public static final String ACTION_ACL_DISCONNECT_REQUEST = "dk.android.bluetooth.device.action.ACL_DISCONNECT_REQUESTED";
-    public static final String ACTION_BOND_STATE_CHANGED = "dk.android.bluetooth.device.action.BOND_STATE_CHANGED";
-    public static final String ACTION_CLASS_CHANGED = "dk.android.bluetooth.device.action.CLASS_CHANGED";
-    public static final String ACTION_FOUND = "dk.android.bluetooth.device.action.FOUND";
-    public static final String ACTION_NAME_CHANGED = "dk.android.bluetooth.device.action.NAME_CHANGED";
-    public static final String EXTRA_BOND_STATE = "dk.android.bluetooth.device.extra.BOND_STATE";
-    public static final String EXTRA_CLASS = "dk.android.bluetooth.device.extra.CLASS";
-    public static final String EXTRA_DEVICE = "dk.android.bluetooth.device.extra.DEVICE";
-    public static final String EXTRA_NAME = "dk.android.bluetooth.device.extra.NAME";
-    public static final String EXTRA_PREVIOUS_BOND_STATE = "dk.android.bluetooth.device.extra.PREVIOUS_BOND_STATE";
-    public static final String EXTRA_RSSI = "dk.android.bluetooth.device.extra.RSSI";
+    public static final String ACTION_ACL_CONNECTED = "com.lokibt.bluetooth.device.action.ACL_CONNECTED";
+    public static final String ACTION_ACL_DISCONNECGTED = "com.lokibt.bluetooth.device.action.ACL_DISCONNECTED";
+    public static final String ACTION_ACL_DISCONNECT_REQUEST = "com.lokibt.bluetooth.device.action.ACL_DISCONNECT_REQUESTED";
+    public static final String ACTION_BOND_STATE_CHANGED = "com.lokibt.bluetooth.device.action.BOND_STATE_CHANGED";
+    public static final String ACTION_CLASS_CHANGED = "com.lokibt.bluetooth.device.action.CLASS_CHANGED";
+    public static final String ACTION_FOUND = "com.lokibt.bluetooth.device.action.FOUND";
+    public static final String ACTION_NAME_CHANGED = "com.lokibt.bluetooth.device.action.NAME_CHANGED";
+    public static final String EXTRA_BOND_STATE = "com.lokibt.bluetooth.device.extra.BOND_STATE";
+    public static final String EXTRA_CLASS = "com.lokibt.bluetooth.device.extra.CLASS";
+    public static final String EXTRA_DEVICE = "com.lokibt.bluetooth.device.extra.DEVICE";
+    public static final String EXTRA_NAME = "com.lokibt.bluetooth.device.extra.NAME";
+    public static final String EXTRA_PREVIOUS_BOND_STATE = "com.lokibt.bluetooth.device.extra.PREVIOUS_BOND_STATE";
+    public static final String EXTRA_RSSI = "com.lokibt.bluetooth.device.extra.RSSI";
     
     public static final int BOND_BONDED = 12;
     public static final int BOND_BONDING = 11;
