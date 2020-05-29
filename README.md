@@ -1,6 +1,4 @@
-# ᛞ Loki BT - Bluetooth for the Android emulator
-
-**Android Library**
+# ![ᛞ](https://raw.githubusercontent.com/lokibt/library/master/logo.png) Loki BT Library - Bluetooth for the Android emulator
 
 Loki BT allows Android developers to use Bluetooth in the Android emulator that ships with Android Studio by emulating Bluetooth over TCP/IP. Loki consists of a web-service and an Android library. This is the repo of the library, which is licensed as open-source under the GPL version 3.
 
