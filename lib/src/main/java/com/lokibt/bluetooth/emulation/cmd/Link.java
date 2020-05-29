@@ -7,7 +7,7 @@ public class Link extends Command {
     private String connId;
 
     public Link(String connId) {
-           super(CommandType.LINK, null);
+        super(CommandType.LINK, null);
         this.connId = connId;
     }
 
@@ -25,7 +25,8 @@ public class Link extends Command {
     }
 
     @Override
-    protected void readResponse() throws IOException { }
+    protected void readResponse() throws IOException {
+    }
 
 
     @Override

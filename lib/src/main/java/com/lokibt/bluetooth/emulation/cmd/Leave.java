@@ -1,11 +1,11 @@
 package com.lokibt.bluetooth.emulation.cmd;
 
-import java.io.IOException;
-
 import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
 
+import java.io.IOException;
+
 public class Leave extends Command {
-    
+
     public Leave() {
         super(CommandType.LEAVE, null);
     }

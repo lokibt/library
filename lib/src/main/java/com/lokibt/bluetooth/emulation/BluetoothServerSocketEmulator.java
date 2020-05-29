@@ -2,6 +2,11 @@ package com.lokibt.bluetooth.emulation;
 
 import android.util.Log;
 
+import com.lokibt.bluetooth.BluetoothDevice;
+import com.lokibt.bluetooth.BluetoothSocket;
+import com.lokibt.bluetooth.emulation.cmd.Announce;
+import com.lokibt.bluetooth.emulation.cmd.Link;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,11 +16,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-
-import com.lokibt.bluetooth.BluetoothDevice;
-import com.lokibt.bluetooth.BluetoothSocket;
-import com.lokibt.bluetooth.emulation.cmd.Announce;
-import com.lokibt.bluetooth.emulation.cmd.Link;
 
 public class BluetoothServerSocketEmulator {
     private static final String TAG = "BTEMU_SERVERSOCKET";
@@ -52,8 +52,8 @@ public class BluetoothServerSocketEmulator {
             Log.d(TAG, "Waiting for an incoming connection for " + timeout + " seconds...");
             Executors.newFixedThreadPool(1).execute(future);
             return future.get(timeout, TimeUnit.SECONDS);
-        } catch(Exception e) {
-            Log.e(TAG, "Timeout while waiting for incoming connections",e);
+        } catch (Exception e) {
+            Log.e(TAG, "Timeout while waiting for incoming connections", e);
             throw new IOException("timed out");
         }
     }

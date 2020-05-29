@@ -1,15 +1,15 @@
 package com.lokibt.bluetooth.emulation.cmd;
 
+import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
-
 public class Join extends Command {
 
     public Join() {
-           super(CommandType.JOIN, null);
+        super(CommandType.JOIN, null);
     }
 
     @Override
@@ -20,6 +20,7 @@ public class Join extends Command {
     }
 
     @Override
-    protected void sendParameters() throws IOException { }
+    protected void sendParameters() throws IOException {
+    }
 
 }

@@ -1,18 +1,17 @@
 package com.lokibt.bluetooth.emulation.cmd;
 
+import com.lokibt.bluetooth.BluetoothSocket;
+
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.UUID;
-
-import com.lokibt.bluetooth.BluetoothSocket;
 
 public class Connect extends Command {
     private BluetoothSocket btsocket;
     private UUID uuid;
 
     public Connect(UUID uuid, BluetoothSocket btsocket) {
-           super(CommandType.CONNECT, btsocket);
+        super(CommandType.CONNECT, btsocket);
         this.btsocket = btsocket;
         this.uuid = uuid;
     }
@@ -32,7 +31,8 @@ public class Connect extends Command {
     }
 
     @Override
-    protected void readResponse() throws IOException { }
+    protected void readResponse() throws IOException {
+    }
 
 
     @Override

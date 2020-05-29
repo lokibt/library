@@ -1,16 +1,5 @@
 package com.lokibt.bluetooth.emulation;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -25,31 +14,26 @@ import androidx.core.content.ContextCompat;
 import com.lokibt.bluetooth.BluetoothAdapter;
 import com.lokibt.bluetooth.BluetoothDevice;
 import com.lokibt.bluetooth.BluetoothServerSocket;
+import com.lokibt.bluetooth.emulation.cmd.CommandListener;
 import com.lokibt.bluetooth.emulation.cmd.Discovery;
 import com.lokibt.bluetooth.emulation.cmd.Join;
 import com.lokibt.bluetooth.emulation.cmd.Leave;
-import com.lokibt.bluetooth.emulation.cmd.CommandListener;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 
 public class BluetoothAdapterEmulator implements CommandListener {
     private static final String TAG = "BTEMULATOR";
 
     private static BluetoothAdapterEmulator instance = null;
-
-    public static BluetoothAdapterEmulator getInstance() {
-        if (instance == null) {
-            try {
-                // Getting application context via reflection
-                // https://stackoverflow.com/questions/2002288/static-way-to-get-context-in-android
-                Context context = (Context) Class.forName("android.app.ActivityThread")
-                        .getMethod("currentApplication").invoke(null, (Object[]) null);
-                instance = new BluetoothAdapterEmulator(context);
-            } catch (Exception e) {
-                Log.e(TAG, "unable to get application context", e);
-            }
-        }
-        return instance;
-    }
-
     private String address;
     private Context context;
     private Activity ctrlActivity = null;
@@ -66,6 +50,21 @@ public class BluetoothAdapterEmulator implements CommandListener {
         this.discoveredDevices = new HashSet<BluetoothDevice>();
         // Generating a name will also set the address
         this.name = generateName();
+    }
+
+    public static BluetoothAdapterEmulator getInstance() {
+        if (instance == null) {
+            try {
+                // Getting application context via reflection
+                // https://stackoverflow.com/questions/2002288/static-way-to-get-context-in-android
+                Context context = (Context) Class.forName("android.app.ActivityThread")
+                    .getMethod("currentApplication").invoke(null, (Object[]) null);
+                instance = new BluetoothAdapterEmulator(context);
+            } catch (Exception e) {
+                Log.e(TAG, "unable to get application context", e);
+            }
+        }
+        return instance;
     }
 
     public void addBondedDevice(BluetoothDevice device) {
@@ -183,14 +182,45 @@ public class BluetoothAdapterEmulator implements CommandListener {
         return scanMode;
     }
 
+    private void setScanMode(int scanMode) {
+        if (this.scanMode != scanMode) {
+            Bundle extras = new Bundle();
+            extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_SCAN_MODE, this.scanMode);
+            extras.putInt(BluetoothAdapter.EXTRA_SCAN_MODE, scanMode);
+            this.scanMode = scanMode;
+            sendBroadcast(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED, extras);
+        }
+    }
+
     public int getState() {
         checkPermission();
         return this.state;
     }
 
+    public void setState(int state) {
+        if (this.state != state) {
+            Bundle extras = new Bundle();
+            extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_STATE, this.state);
+            extras.putInt(BluetoothAdapter.EXTRA_STATE, state);
+            this.state = state;
+            sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED, extras);
+        }
+    }
+
     public boolean isDiscovering() {
         checkPermission();
         return this.discovering;
+    }
+
+    private void setDiscovering(boolean discovering) {
+        if (this.discovering != discovering) {
+            this.discovering = discovering;
+            if (discovering) {
+                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+            } else {
+                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+            }
+        }
     }
 
     public boolean isEnabled() {
@@ -221,16 +251,6 @@ public class BluetoothAdapterEmulator implements CommandListener {
             sendBroadcast(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED, extras);
         }
         return true;
-    }
-
-    public void setState(int state) {
-        if (this.state != state) {
-            Bundle extras = new Bundle();
-            extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_STATE, this.state);
-            extras.putInt(BluetoothAdapter.EXTRA_STATE, state);
-            this.state = state;
-            sendBroadcast(BluetoothAdapter.ACTION_STATE_CHANGED, extras);
-        }
     }
 
     public void startDiscoverable(int duration) {
@@ -284,6 +304,8 @@ public class BluetoothAdapterEmulator implements CommandListener {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public void onLeaveReturned() {
         if (this.state == BluetoothAdapter.STATE_TURNING_OFF || this.state == BluetoothAdapter.STATE_OFF) {
@@ -306,8 +328,6 @@ public class BluetoothAdapterEmulator implements CommandListener {
         setDiscovering(false);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-
     private void checkEnabled() throws IOException {
         if (!isEnabled()) {
             Log.e(TAG, "Bluetooth is not enabled");
@@ -316,14 +336,14 @@ public class BluetoothAdapterEmulator implements CommandListener {
     }
 
     private void checkPermission() {
-        if(ContextCompat.checkSelfPermission(context,Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_DENIED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_DENIED) {
             Log.e(TAG, "Missing permission: BLUETOOTH");
             throw new SecurityException();
         }
     }
 
     private void checkAdminPermission() {
-        if(ContextCompat.checkSelfPermission(context,Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_DENIED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_DENIED) {
             Log.e(TAG, "Missing permission: BLUETOOTH_ADMIN");
             throw new SecurityException();
         }
@@ -383,26 +403,5 @@ public class BluetoothAdapterEmulator implements CommandListener {
         this.ctrlActivity.setResult(result);
         this.ctrlActivity.finish();
         this.ctrlActivity = null;
-    }
-
-    private void setDiscovering(boolean discovering) {
-        if (this.discovering != discovering) {
-            this.discovering = discovering;
-            if (discovering) {
-                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-            } else {
-                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-            }
-        }
-    }
-
-    private void setScanMode(int scanMode) {
-        if (this.scanMode != scanMode) {
-            Bundle extras = new Bundle();
-            extras.putInt(BluetoothAdapter.EXTRA_PREVIOUS_SCAN_MODE, this.scanMode);
-            extras.putInt(BluetoothAdapter.EXTRA_SCAN_MODE, scanMode);
-            this.scanMode = scanMode;
-            sendBroadcast(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED, extras);
-        }
     }
 }

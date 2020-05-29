@@ -1,7 +1,6 @@
 package com.lokibt.bluetooth.emulation.cmd;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.UUID;
 
 public class Announce extends Command {
@@ -18,7 +17,8 @@ public class Announce extends Command {
     }
 
     @Override
-    protected void readResponse() throws IOException { }
+    protected void readResponse() throws IOException {
+    }
 
     @Override
     protected void sendParameters() throws IOException {

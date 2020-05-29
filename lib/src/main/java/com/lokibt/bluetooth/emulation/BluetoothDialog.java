@@ -1,14 +1,14 @@
 package com.lokibt.bluetooth.emulation;
 
-import com.lokibt.bluetooth.BluetoothAdapter;
-import com.lokibt.bluetooth.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.lokibt.bluetooth.BluetoothAdapter;
+import com.lokibt.bluetooth.R;
 
 public class BluetoothDialog extends Activity {
     private static final String TAG = "BTDIALOG";
@@ -27,7 +27,7 @@ public class BluetoothDialog extends Activity {
         Log.d(TAG, "Bluetooth dialog created for action: " + intent.getAction());
 
         TextView textView = findViewById(R.id.message);
-        switch(intent.getAction()) {
+        switch (intent.getAction()) {
             case BluetoothAdapter.ACTION_REQUEST_ENABLE:
                 textView.setText(getResources().getText(R.string.message_enable));
                 break;
@@ -41,12 +41,11 @@ public class BluetoothDialog extends Activity {
     }
 
     public void onAllow(View view) {
-        switch(intent.getAction()) {
+        switch (intent.getAction()) {
             case BluetoothAdapter.ACTION_REQUEST_ENABLE:
                 if (emulator.enable()) {
                     setResult(RESULT_OK);
-                }
-                else {
+                } else {
                     setResult(Activity.RESULT_CANCELED);
                 }
                 finish();

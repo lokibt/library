@@ -1,10 +1,10 @@
 package com.lokibt.bluetooth;
 
+import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
+
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
-
-import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
 
 public class BluetoothAdapter {
     public static final String ACTION_DISCOVERY_FINISHED = "com.lokibt.bluetooth.adapter.action.DISCOVERY_FINISHED";
@@ -28,8 +28,9 @@ public class BluetoothAdapter {
     public static final int STATE_ON = 12;
     public static final int STATE_TURNING_OFF = 13;
     public static final int STATE_TURNING_ON = 11;
-    
+
     private static BluetoothAdapter defaultAdapter = null;
+    private BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
 
     public static boolean checkBluetoothAddress(String addr) {
         return android.bluetooth.BluetoothAdapter.checkBluetoothAddress(addr);
@@ -41,8 +42,6 @@ public class BluetoothAdapter {
         }
         return defaultAdapter;
     }
-
-    private BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
 
     public boolean cancelDiscovery() {
         return emulator.cancelDiscovery();

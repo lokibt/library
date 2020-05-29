@@ -1,13 +1,13 @@
 package com.lokibt.bluetooth;
 
+import com.lokibt.bluetooth.emulation.BluetoothServerSocketEmulator;
+
 import java.io.IOException;
 import java.util.UUID;
 
-import com.lokibt.bluetooth.emulation.BluetoothServerSocketEmulator;
-
 public class BluetoothServerSocket {
     private BluetoothServerSocketEmulator emulator;
-    
+
     public BluetoothServerSocket(UUID uuid) {
         this.emulator = new BluetoothServerSocketEmulator(uuid);
     }

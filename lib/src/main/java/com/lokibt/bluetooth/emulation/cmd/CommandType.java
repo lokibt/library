@@ -7,7 +7,7 @@ public enum CommandType {
     ANNOUNCE(3),
     CONNECT(4),
     LINK(5);
-    
+
     int intRepr;
 
     CommandType(int intRepr) {
