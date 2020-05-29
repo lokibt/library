@@ -21,7 +21,7 @@ public class BluetoothDialog extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ctrl);
+        setContentView(R.layout.bluetooth_dialog);
 
         intent = getIntent();
         Log.d(TAG, "Bluetooth dialog created for action: " + intent.getAction());
