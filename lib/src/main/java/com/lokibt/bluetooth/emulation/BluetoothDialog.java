@@ -37,6 +37,10 @@ public class BluetoothDialog extends Activity {
         if (port > 0) {
             Command.port = port;
         }
+        String group = intent.getStringExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP);
+        if (group != null) {
+            Command.group = group;
+        }
 
         TextView textView = findViewById(R.id.message);
         switch (intent.getAction()) {

@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // Comment the following two lines to use the official web-service
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_ENABLE);
         } else {
             discoverableSwitch.setChecked(false);
@@ -177,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // Comment the following two lines to use the official web-service
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_DISCOVERABLE);
         } else {
             discoverableSwitch.setChecked(true);

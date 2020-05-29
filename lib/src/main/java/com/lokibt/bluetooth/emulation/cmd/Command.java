@@ -12,6 +12,7 @@ public abstract class Command implements Runnable {
 
     public static String host = "letorbi.de";
     public static int port = 8199;
+    public static String group = "";
 
     protected Socket socket;
     protected InputStream in;
@@ -73,6 +74,7 @@ public abstract class Command implements Runnable {
     }
 
     protected void writePreamble() throws IOException {
+        sendParameter(Command.group);
         sendParameter(Integer.toString(this.type.intRepr));
         sendParameter(com.lokibt.bluetooth.BluetoothAdapter.getDefaultAdapter().getAddress());
     }

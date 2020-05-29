@@ -23,6 +23,7 @@ public class BluetoothAdapter {
     public static final String EXTRA_STATE = "com.lokibt.bluetooth.adapter.extra.STATE";
     public static final String EXTRA_LOKIBT_HOST = "com.lokibt.bluetooth.adapter.extra.LOKIBT_HOST";
     public static final String EXTRA_LOKIBT_PORT = "com.lokibt.bluetooth.adapter.extra.LOKIBT_PORT";
+    public static final String EXTRA_LOKIBT_GROUP = "com.lokibt.bluetooth.adapter.extra.LOKIBT_GROUP";
     public static final int SCAN_MODE_CONNECTABLE = 21;
     public static final int SCAN_MODE_CONNECTABLE_DISCOVERABLE = 23;
     public static final int SCAN_MODE_NONE = 20;
