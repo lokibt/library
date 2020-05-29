@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.lokibt.bluetooth.BluetoothAdapter;
 import com.lokibt.bluetooth.R;
+import com.lokibt.bluetooth.emulation.cmd.Command;
 
 public class BluetoothDialog extends Activity {
     private static final String TAG = "BTDIALOG";
@@ -17,6 +18,8 @@ public class BluetoothDialog extends Activity {
 
     private Intent intent;
     private int duration;
+    private String host;
+    private int port;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +28,15 @@ public class BluetoothDialog extends Activity {
 
         intent = getIntent();
         Log.d(TAG, "Bluetooth dialog created for action: " + intent.getAction());
+
+        String host = intent.getStringExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST);
+        if (host != null) {
+            Command.host = host;
+        }
+        int port = intent.getIntExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, -1);
+        if (port > 0) {
+            Command.port = port;
+        }
 
         TextView textView = findViewById(R.id.message);
         switch (intent.getAction()) {

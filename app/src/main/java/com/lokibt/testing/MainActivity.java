@@ -156,6 +156,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (enableSwitch.isChecked()) {
             logToView("Enabling Bluetooth...");
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            // Comment the following two lines to use the official web-service
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
             startActivityForResult(intent, REQUEST_ENABLE);
         } else {
             discoverableSwitch.setChecked(false);
@@ -170,7 +173,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             enableSwitch.setChecked(true);
             logToView("Making device discoverable...");
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 10);
+            // Comment the following two lines to use the official web-service
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
             startActivityForResult(intent, REQUEST_DISCOVERABLE);
         } else {
             discoverableSwitch.setChecked(true);

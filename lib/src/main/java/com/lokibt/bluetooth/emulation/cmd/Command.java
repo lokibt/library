@@ -9,6 +9,10 @@ import java.net.Socket;
 
 public abstract class Command implements Runnable {
     final static String TAG = "BTEMU_CMD";
+
+    public static String host = "letorbi.de";
+    public static int port = 8199;
+
     protected Socket socket;
     protected InputStream in;
     protected OutputStream out;
@@ -47,9 +51,8 @@ public abstract class Command implements Runnable {
     }
 
     public Socket open() throws IOException {
-        Log.d(TAG, "opening socket and streams....");
-        //this.socket = new Socket("10.0.2.2", 8199);
-        this.socket = new Socket("letorbi.de", 8199);
+        Log.d(TAG, "opening socket and streams to " + Command.host + ":" + Command.port);
+        this.socket = new Socket(Command.host, Command.port);
         this.out = this.socket.getOutputStream();
         this.in = this.socket.getInputStream();
         return this.socket;
