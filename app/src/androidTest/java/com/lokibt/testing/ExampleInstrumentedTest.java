@@ -1,4 +1,4 @@
-package com.lokibt.example;
+package com.lokibt.testing;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
     // Context of the app under test.
     Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-    assertEquals("com.lokibt.example", appContext.getPackageName());
+    assertEquals("com.lokibt.testing", appContext.getPackageName());
   }
 }

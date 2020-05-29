@@ -1,4 +1,4 @@
-package com.lokibt.example;
+package com.lokibt.testing;
 
 import androidx.appcompat.app.AppCompatActivity;
 
