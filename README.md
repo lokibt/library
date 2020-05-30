@@ -6,9 +6,9 @@ Loki BT allows Android developers to use Bluetooth in the Android emulator that 
 
 ## Installation
 
-To use Loki BT to your project you just have to add the JitPack repository and the Loki BT dependency.
+To use Loki BT in your project you just have to add the JitPack repository and the Loki BT dependency.
 
-Add the JitPack repository to your project's *build.gradle* file:
+Add the JitPack repository to your project's build-file (*/build.gradle*):
 
 ```gradle
 allprojects { // not buildscript!
@@ -19,7 +19,7 @@ allprojects { // not buildscript!
 }
 ```
 
-Add the Loki BT dependency to your modules's *build.gradle* file (e.g */app/build.gradle*):
+Add the Loki BT dependency to your modules's build-file (e.g */app/build.gradle*):
 
 ```gradle
 dependencies {
@@ -27,10 +27,33 @@ dependencies {
     implementation 'com.github.lokibt:library:master-SNAPSHOT'
 }
 ```
+## Usage
+
+Just use `import com.lokibt.bluetooth.*` instead of `import android.bluetooth.*` to import the Bluetooth classes.
+
+Once you are using the Loki BT classes, you just have to start your app in two emulators and they will be able to discover each other and exchange data via Bluetooth. Of course also different apps that use Loki BT can communicate with each other as long as the emulators run on the same host-system. See [Device groups](#device-groups), if you want to connect to emulators on other systems.
+
+Loki BT aims to be interface compatible with Android's Bluetooth API, so the information in [the official Bluetooth overview for Android](https://developer.android.com/guide/topics/connectivity/bluetooth) and the [Reference of the android.bluetooth package](https://developer.android.com/reference/android/bluetooth/package-summary) also apply to Loki BT. However, the Loki BT implementation is still incomplete, see [Limitations](#limitations) for details.
+
+### Device groups
+
+Loki makes all Android emulators on the same host-system visible to each other by default. You have to set a device group, if you want to connect to emulators on other hosts or want to hide some emulators from other emulators on the same host.
+
+To add an emulator to a device group, you just have to add the name of the device group as an extra to the [REQUEST_ENABLE](https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#ACTION_REQUEST_ENABLE) or [REQUEST_DISCOVERABLE](https://developer.android.com/reference/android/bluetooth/BluetoothAdapter#ACTION_REQUEST_DISCOVERABLE) intent:
+
+```Java
+Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.mydomain.MY_DEVICE_GROUP_NAME");
+startActivityForResult(intent, MY_REQUEST_CODE);
+```
+Please note that the device group names are not checked for uniqueness. It is in your responsibility to prevent naming-collisions with device groups of others. We therefore recommend to prefix your group name with the name of a domain you own.
+
+## Limitations
+*Yet to be written...*
 
 ## Credits
 
-The original version was written by Francesco Zanitti, who [published it on GitHub](https://github.com/cheng81/Android-Bluetooth-Simulator/). However, his repo seems to be abandoned since 2010 and most of the original code has been replaced or rewritten by now.
+The original version was written by Francesco Zanitti, who [published it on GitHub](https://github.com/cheng81/Android-Bluetooth-Simulator/). However, the repo seems to be abandoned since 2010 and most of the original code has been replaced or rewritten by now.
 
 ----
 
