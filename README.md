@@ -50,11 +50,11 @@ Please note that the device group names are not checked for uniqueness. It is in
 
 ## Limitations
 
-Re-implementing Android's Bluetooth API is a big task, therefore we concentrate on the core functionality of Bluetooth, sending and receiving Data over an RFCOMM socket, right now. All examples on [the Bluetooth Overview page](https://developer.android.com/guide/topics/connectivity/bluetooth) except for the one about using profiles should work.
+Re-implementing Android's Bluetooth API is a big task, therefore we concentrate on the core functionality of Bluetooth, sending and receiving Data over a RFCOMM socket, right now. All examples on [the Bluetooth Overview page](https://developer.android.com/guide/topics/connectivity/bluetooth) except for the one about using profiles should work.
 
 The support for **Pairing** is just a stub with no real functionality so far. We plan to add full pairing support as soon as possible.
 
-Everything related to **Bluetooth profiles** as not been implemented at all. We want to support profiles, but not before the core functionality has been fully implemented.
+Everything related to **Bluetooth profiles** has not been implemented at all. We want to support profiles, but not before the core functionality has been fully implemented.
 
 ### Class implementation status
 
