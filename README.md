@@ -49,7 +49,27 @@ startActivityForResult(intent, MY_REQUEST_CODE);
 Please note that the device group names are not checked for uniqueness. It is in your responsibility to prevent naming-collisions with device groups of others. We therefore recommend to prefix your group name with the name of a domain you own.
 
 ## Limitations
-*Yet to be written...*
+
+Re-implementing Android's Bluetooth API is a big task, therefore we concentrate on the core functionality of Bluetooth, sending and receiving Data over an RFCOMM socket, right now. All examples on [the Bluetooth Overview page](https://developer.android.com/guide/topics/connectivity/bluetooth) except for the one about using profiles should work.
+
+The support for **Pairing** is just a stub with no real functionality so far. We plan to add full pairing support as soon as possible.
+
+Everything related to **Bluetooth profiles** as not been implemented at all. We want to support profiles, but not before the core functionality has been fully implemented.
+
+### Class implementation status
+
+* `BluetoothAdapter`: partly implemented
+* `BluetoothDevice`: partly implemented
+* `BluetoothSocket`: partly implemented
+* `BluetoothServerSocket`: partly implemented
+* `BluetoothClass`: partly implemented
+* `BluetoothProfile`: not implemented
+* `BluetoothHeadset`: not implemented
+* `BluetoothA2dp`: not implemented
+* `BluetoothHealth`: not implemented
+* `BluetoothHealthCallback`: not implemented
+* `BluetoothHealthAppConfiguration`: not implemented
+* `BluetoothProfile.ServiceListener`: not implemented
 
 ## Credits
 
