@@ -6,7 +6,7 @@ Loki BT allows Android developers to use Bluetooth in the Android emulator that 
 
 ## Installation
 
-To use Loki BT in your project you just have to add the JitPack repository and the Loki BT dependency.
+To use Loki BT in your project you have to add the JitPack repository and the Loki BT dependency.
 
 Add the JitPack repository to your project's build-file (*/build.gradle*):
 
@@ -29,7 +29,7 @@ dependencies {
 ```
 ## Usage
 
-Just use `import com.lokibt.bluetooth.*` instead of `import android.bluetooth.*` to import the Bluetooth classes.
+Simply use `import com.lokibt.bluetooth.*` instead of `import android.bluetooth.*` to import the Bluetooth classes.
 
 Once you are using the Loki BT classes, you just have to start your app in two emulators and they will be able to discover each other and exchange data via Bluetooth. Of course also different apps that use Loki BT can communicate with each other as long as the emulators run on the same host-system. See [Device groups](#device-groups), if you want to connect to emulators on other systems.
 
