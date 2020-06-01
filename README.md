@@ -43,16 +43,16 @@ To add an emulator to a device group, you just have to add the name of the devic
 
 ```Java
 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.mydomain.MY_DEVICE_GROUP_NAME");
+intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.example.MY_DEVICE_GROUP_NAME");
 startActivityForResult(intent, MY_REQUEST_CODE);
 ```
 Please note that the device group names are not checked for uniqueness. It is in your responsibility to prevent naming-collisions with device groups of others. We therefore recommend to prefix your group name with the name of a domain you own.
 
 ### Testing on real hardware
 
-If you want to test your app with the Bluetooth hardware on a real device, you have to revert all import statements from `import com.lokibt.bluetooth.*` back to `import android.bluetooth.*`. This also definitely recommended before releasing the app ;)
+If you want to test your app with the Bluetooth hardware on a real device, you have to revert all import statements from `import com.lokibt.bluetooth.*` back to `import android.bluetooth.*`. This is also definitely recommended before releasing the app ;)
 
-We plan to make our code aware of real hardware and release builds, so that no extras actions would be required by you.
+We plan to make our code aware of real hardware and release builds, so that no extra actions would be required by you.
 
 ## Limitations
 
