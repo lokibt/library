@@ -39,12 +39,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     static final String ITEM_KEY = "key";
     static final int REQUEST_DISCOVERABLE = 23;
     static final int REQUEST_ENABLE = 42;
+
+    private boolean runServer = false;
+
     private BluetoothAdapter bluetoothAdapter;
     private Switch discoverableSwitch;
     private Switch enableSwitch;
     private Switch serverSwitch;
     private List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
     private SimpleAdapter listAdapter;
+
     final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -159,7 +163,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             // Comment the following two lines to use the official web-service
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
-            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
+            // Uncomment the following two lines to test device grouping
+            //intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_ENABLE);
         } else {
             discoverableSwitch.setChecked(false);
@@ -174,11 +179,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             enableSwitch.setChecked(true);
             logToView("Making device discoverable...");
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 10);
+            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 600);
             // Comment the following two lines to use the official web-service
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
-            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
+            // Uncomment the following two lines to test device grouping
+            //intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_DISCOVERABLE);
         } else {
             discoverableSwitch.setChecked(true);
@@ -188,10 +194,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onServerClick(View v) {
         if (serverSwitch.isChecked()) {
+            runServer = true;
             startServer();
         } else {
-            Toast.makeText(this, "Server will be disabled after a message has been received.", Toast.LENGTH_SHORT).show();
-            serverSwitch.setChecked(true);
+            runServer = false;
+            Toast.makeText(this, "Server will be disabled after the next message has been received.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -215,37 +222,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     logToView("Starting server...");
                     listenSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
                     Log.d(TAG, "Waiting for client connections...");
-                    dataSocket = listenSocket.accept();
-                    InputStream inStream = dataSocket.getInputStream();
-                    OutputStream outStream = dataSocket.getOutputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream));
+                    while (runServer) {
+                        try {
+                            dataSocket = listenSocket.accept();
+                            InputStream inStream = dataSocket.getInputStream();
+                            OutputStream outStream = dataSocket.getOutputStream();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
+                            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream));
 
-          /*writer.write("Hello :)\n");
-          writer.flush();
+                            String line = reader.readLine();
+                            logToView("Message received: " + line);
 
-          writer.write("How are you?\n");
-          writer.flush();*/
+                            writer.write("1 Echo of: \"" + line + "\"\n");
+                            writer.flush();
 
-                    String line = reader.readLine();
-                    logToView("Message received: " + line);
+                            line = reader.readLine();
+                            logToView("Message received: " + line);
 
-                    writer.write("1 Echo of: \"" + line + "\"\n");
-                    writer.flush();
+                            writer.write("2 Echo of: \"" + line + "\"\n");
+                            writer.flush();
 
-                    line = reader.readLine();
-                    logToView("Message received: " + line);
+                            writer.write("It was nice talking to you.\n");
+                            writer.flush();
 
-                    writer.write("2 Echo of: \"" + line + "\"\n");
-                    writer.flush();
-
-                    writer.write("It was nice talking to you.\n");
-                    writer.flush();
-
-                    writer.write("Goodbye!\n");
-                    writer.flush();
+                            writer.write("Goodbye!\n");
+                            writer.flush();
+                        } catch (Exception e) {
+                            logErrorToView("Exception during data exchange", e);
+                        } finally {
+                            try {
+                                Log.d(TAG, "Closing data socket");
+                                if (dataSocket != null) {
+                                    dataSocket.close();
+                                }
+                            } catch (Exception e2) {
+                                logErrorToView("Exception when closing data socket", e2);
+                            }
+                        }
+                    }
                 } catch (Exception e) {
-                    logErrorToView("Exception in server", e);
+                    logErrorToView("Exception during server loop", e);
                 } finally {
                     runOnUiThread(new Runnable() {
                         @Override
@@ -254,16 +270,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         }
                     });
                     try {
-                        Log.d(TAG, "Closing data and listen socket");
-                        if (dataSocket != null) {
-                            dataSocket.close();
-                        }
+                        Log.d(TAG, "Closing listen socket");
                         if (listenSocket != null) {
                             listenSocket.close();
                         }
                         logToView("Server stopped");
                     } catch (Exception e2) {
-                        logErrorToView("Exception when stopping server", e2);
+                        logErrorToView("Exception when closing listen socket", e2);
                     }
                 }
             }
