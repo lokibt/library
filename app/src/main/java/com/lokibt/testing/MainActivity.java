@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             discoverableSwitch.setChecked(false);
             serverSwitch.setChecked(false);
             logToView("Disabling Bluetooth...");
-            //bluetoothAdapter.disable();
+            bluetoothAdapter.disable();
         }
     }
 
