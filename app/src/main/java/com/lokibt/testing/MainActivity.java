@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             // Comment the following two lines to use the official web-service
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
-            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8198);
             // Uncomment the following two lines to test device grouping
             //intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_ENABLE);
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 600);
             // Comment the following two lines to use the official web-service
             intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_HOST, "10.0.2.2");
-            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8199);
+            intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_PORT, 8198);
             // Uncomment the following two lines to test device grouping
             //intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_DISCOVERABLE);

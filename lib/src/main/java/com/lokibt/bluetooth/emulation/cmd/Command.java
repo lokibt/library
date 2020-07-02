@@ -11,7 +11,7 @@ public abstract class Command implements Runnable {
     final static String TAG = "BTEMU_CMD";
 
     public static String host = "letorbi.de";
-    public static int port = 8199;
+    public static int port = 8198;
     public static String group = "";
 
     protected Socket socket;
