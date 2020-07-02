@@ -2,6 +2,7 @@ package com.lokibt.bluetooth;
 
 import android.util.Log;
 
+import com.lokibt.bluetooth.emulation.cmd.Command;
 import com.lokibt.bluetooth.emulation.cmd.CommandCallback;
 import com.lokibt.bluetooth.emulation.cmd.Connect;
 
@@ -64,8 +65,12 @@ public class BluetoothSocket implements CommandCallback {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public void onClose(Command cmd) {
+
+    }
+
     @Override
-    public void onFinish() {
+    public void onFinish(Command cmd) {
         Log.d(TAG, "connected :)");
     }
 }
