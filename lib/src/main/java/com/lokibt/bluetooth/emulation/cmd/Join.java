@@ -42,8 +42,6 @@ public class Join extends Command {
 
     @Override
     protected void readResponse() throws IOException {
-        //get the emulator port number
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
     }
 
     @Override
