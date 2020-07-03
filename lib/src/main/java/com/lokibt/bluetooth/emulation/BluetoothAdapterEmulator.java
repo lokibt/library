@@ -16,7 +16,6 @@ import com.lokibt.bluetooth.BluetoothDevice;
 import com.lokibt.bluetooth.BluetoothServerSocket;
 import com.lokibt.bluetooth.emulation.cmd.Command;
 import com.lokibt.bluetooth.emulation.cmd.CommandCallback;
-import com.lokibt.bluetooth.emulation.cmd.CommandListener;
 import com.lokibt.bluetooth.emulation.cmd.CommandType;
 import com.lokibt.bluetooth.emulation.cmd.Discovery;
 import com.lokibt.bluetooth.emulation.cmd.Join;
@@ -30,7 +29,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
-public class BluetoothAdapterEmulator implements CommandListener, CommandCallback {
+public class BluetoothAdapterEmulator implements CommandCallback {
     private static final String TAG = "BTEMULATOR";
 
     private static BluetoothAdapterEmulator instance = null;
@@ -234,7 +233,7 @@ public class BluetoothAdapterEmulator implements CommandListener, CommandCallbac
         }
         try {
             setDiscovering(true);
-            new Thread(new Discovery()).start();
+            new Thread(new Discovery(this)).start();
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Cannot start Discovery() thread", e);
@@ -245,38 +244,28 @@ public class BluetoothAdapterEmulator implements CommandListener, CommandCallbac
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void onLeaveReturned() {
-        Log.w(TAG, "onLeaveReturned() is obsolete");
-    }
-
-    @Override
-    public void onDiscoveryReturned(Set<BluetoothDevice> devices) {
-        for (BluetoothDevice d : devices) {
-            Log.d(TAG, "Discovered device: " + d);
-            Bundle extras = new Bundle();
-            extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, d);
-            sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
-        }
-        this.discoveredDevices = devices;
-        setDiscovering(false);
-    }
-
-    @Override
-    public void onJoinReturned() {
-        Log.w(TAG, "onJoinReturned() is obsolete");
-    }
-
-
-    @Override
     public void onFinish(Command cmd) {
-        if (cmd.getType() == CommandType.JOIN) {
-            Log.d(TAG, "JOIN finished");
-            if (isEnabled()) {
-                setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-                sendResult(Activity.RESULT_OK);
-            } else {
-                setScanMode(BluetoothAdapter.SCAN_MODE_NONE);
-            }
+        switch (cmd.getType()) {
+            case DISCOVERY:
+                Log.d(TAG, "DISCOVERY finished");
+                Set<BluetoothDevice> devices = ((Discovery) cmd).devices;
+                for (BluetoothDevice d : devices) {
+                    Log.d(TAG, "Discovered device: " + d);
+                    Bundle extras = new Bundle();
+                    extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, d);
+                    sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
+                }
+                this.discoveredDevices = devices;
+                setDiscovering(false);
+                break;
+            case JOIN:
+                Log.d(TAG, "JOIN finished");
+                if (isEnabled()) {
+                    setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+                    sendResult(Activity.RESULT_OK);
+                } else {
+                    setScanMode(BluetoothAdapter.SCAN_MODE_NONE);
+                }
         }
     }
 

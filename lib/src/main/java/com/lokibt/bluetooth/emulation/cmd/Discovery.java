@@ -17,14 +17,15 @@ import java.util.Set;
 public class Discovery extends Command {
     final static String TAG = "BTCMD_DISCOVERY";
 
-    public Discovery() {
-        super(CommandType.DISCOVERY, null);
+    public Set<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
+
+    public Discovery(CommandCallback callback) {
+        super(CommandType.DISCOVERY, callback);
     }
 
     @Override
     protected void readResponse() throws IOException {
         BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
-        Set<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
         BufferedReader br = new BufferedReader(new InputStreamReader(this.in));
         String line = br.readLine();
         while (line != null) {
@@ -43,10 +44,10 @@ public class Discovery extends Command {
             device.writeString(emulator.generateName(deviceInfo[0]));
             device.writeParcelableArray(services.toArray(new BluetoothDeviceService[]{}), 0);
             device.setDataPosition(0);
-            devices.add(BluetoothDevice.CREATOR.createFromParcel(device));
+            this.devices.add(BluetoothDevice.CREATOR.createFromParcel(device));
             line = br.readLine();
         }
-        emulator.onDiscoveryReturned(devices);
+        //emulator.onDiscoveryReturned(devices);
     }
 
     @Override
