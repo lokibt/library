@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
@@ -38,13 +39,13 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     private Context context;
     private Activity ctrlActivity = null;
     private Set<BluetoothDevice> discoveredDevices;
-    private boolean discovering = false;
     private String name;
     private int state = BluetoothAdapter.STATE_OFF;
     private Set<BluetoothDevice> bondedDevices;
     private int scanMode = BluetoothAdapter.SCAN_MODE_NONE;
 
     private Join join;
+    private Discovery discoveryCmd;
 
     private BluetoothAdapterEmulator(Context context) {
         this.context = context;
@@ -78,8 +79,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         if (!isEnabled()) {
             return false;
         }
-        // TODO: Actually cancel the discovery thread
-        setDiscovering(false);
+        this.discoveryCmd.stop();
         return true;
     }
 
@@ -187,18 +187,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
 
     public boolean isDiscovering() {
         checkPermission();
-        return this.discovering;
-    }
-
-    private void setDiscovering(boolean discovering) {
-        if (this.discovering != discovering) {
-            this.discovering = discovering;
-            if (discovering) {
-                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-            } else {
-                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-            }
-        }
+        return this.discoveryCmd != null;
     }
 
     public boolean isEnabled() {
@@ -232,13 +221,23 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             return false;
         }
         try {
-            setDiscovering(true);
-            new Thread(new Discovery(this)).start();
+            this.discoveredDevices = new HashSet<>();
+            this.discoveryCmd = new Discovery(this);
+            new Thread(this.discoveryCmd).start();
+            sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Cannot start Discovery() thread", e);
             return false;
         }
+    }
+
+    public void addDiscoveredDevice(BluetoothDevice device) {
+        Log.d(TAG, "Discovered device: " + device);
+        Bundle extras = new Bundle();
+        extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, device);
+        sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
+        this.discoveredDevices.add(device);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,15 +247,9 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         switch (cmd.getType()) {
             case DISCOVERY:
                 Log.d(TAG, "DISCOVERY finished");
-                Set<BluetoothDevice> devices = ((Discovery) cmd).devices;
-                for (BluetoothDevice d : devices) {
-                    Log.d(TAG, "Discovered device: " + d);
-                    Bundle extras = new Bundle();
-                    extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, d);
-                    sendBroadcast(BluetoothDevice.ACTION_FOUND, extras);
-                }
-                this.discoveredDevices = devices;
-                setDiscovering(false);
+                this.discoveredDevices = null;
+                this.discoveryCmd = null;
+                sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
                 break;
             case JOIN:
                 Log.d(TAG, "JOIN finished");

@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private BluetoothAdapter bluetoothAdapter;
     private Switch discoverableSwitch;
+    private Switch discoverySwitch;
     private Switch enableSwitch;
     private Switch serverSwitch;
     private List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
@@ -134,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         registerReceiver(receiver, filter);
 
         discoverableSwitch = findViewById(R.id.discoverable_switch);
+        discoverySwitch = findViewById(R.id.discovery_switch);
         enableSwitch = findViewById(R.id.enable_switch);
         serverSwitch = findViewById(R.id.server_switch);
 
@@ -204,11 +206,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onDiscoveryClick(View v) {
         logToView("Starting discovery...");
-        if (bluetoothAdapter.startDiscovery()) {
-            listData.clear();
-            listAdapter.notifyDataSetChanged();
-        } else {
-            Toast.makeText(this, "Bluetooth needs to be enabled first", Toast.LENGTH_SHORT).show();
+        if (discoverySwitch.isChecked()) {
+            if (bluetoothAdapter.startDiscovery()) {
+                listData.clear();
+                listAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(this, "Bluetooth needs to be enabled first", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            if (bluetoothAdapter.cancelDiscovery()) {
+                listData.clear();
+                listAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(this, "Problem while cancelling the Bluetooth discovery", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -298,11 +310,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream));
 
-          /*String reply = reader.readLine();
-          logToView("Received reply: " + reply);
+                    /*String reply = reader.readLine();
+                    logToView("Received reply: " + reply);
 
-          reply = reader.readLine();
-          logToView("Received reply: " + reply);*/
+                    reply = reader.readLine();
+                    logToView("Received reply: " + reply);*/
 
                     Log.d(TAG, "Writing message...");
                     writer.write("1 Hello Bluetooth :)\n");
