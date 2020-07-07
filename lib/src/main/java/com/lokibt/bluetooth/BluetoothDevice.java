@@ -30,7 +30,6 @@ public class BluetoothDevice implements Parcelable {
         public BluetoothDevice createFromParcel(Parcel source) {
             BluetoothDevice device = new BluetoothDevice();
             device.addr = source.readString();
-            device.tcpAddr = source.readString();
             device.name = source.readString();
             return device;
         }
@@ -42,12 +41,10 @@ public class BluetoothDevice implements Parcelable {
     };
     private BluetoothClass btClass;
     private String addr;
-    private String tcpAddr;
     private String name;
 
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(addr);
-        out.writeString(tcpAddr);
         out.writeString(name);
     }
 
@@ -84,6 +81,6 @@ public class BluetoothDevice implements Parcelable {
     }
 
     public String toString() {
-        return "BluetoothDevice " + addr + ", " + name + " -> " + tcpAddr;
+        return "BluetoothDevice " + addr + ", " + name;
     }
 }

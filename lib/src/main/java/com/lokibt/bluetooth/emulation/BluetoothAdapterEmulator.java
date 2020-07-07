@@ -52,7 +52,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         this.bondedDevices = new HashSet<BluetoothDevice>();
         this.discoveredDevices = new HashSet<BluetoothDevice>();
         // Generating a name will also set the address
-        this.name = generateName();
+        this.name = generateName(getAddress(false));
     }
 
     public static BluetoothAdapterEmulator getInstance() {
@@ -105,7 +105,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     }
 
     public String generateName(String address) {
-        return "emulator-" + address.replace(":", "");
+        return "lokibt-" + address.replace(":", "");
     }
 
     public String getAddress(boolean strict) {
@@ -165,7 +165,6 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             Log.d(TAG, "Device address not found: " + address);
             Parcel parcel = Parcel.obtain();
             parcel.writeString(address);
-            parcel.writeString("10.0.2.2"); // TODO remove me
             parcel.writeString(this.generateName(address));
             parcel.setDataPosition(0);
             device = BluetoothDevice.CREATOR.createFromParcel(parcel);
@@ -356,10 +355,6 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             sb.append(chars.charAt(r.nextInt(6)));
         }
         return sb.toString();
-    }
-
-    private String generateName() {
-        return generateName(getAddress(false));
     }
 
     private void sendBroadcast(String action) {

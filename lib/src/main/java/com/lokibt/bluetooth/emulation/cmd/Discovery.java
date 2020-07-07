@@ -36,7 +36,6 @@ public class Discovery extends Command {
                 Log.d(TAG, "Discovered device: " + deviceInfo[0]);
                 Parcel device = Parcel.obtain();
                 device.writeString(deviceInfo[0]);
-                device.writeString("10.0.2.2"); // TODO remove me
                 device.writeString(emulator.generateName(deviceInfo[0]));
                 device.setDataPosition(0);
                 emulator.addDiscoveredDevice(BluetoothDevice.CREATOR.createFromParcel(device));
