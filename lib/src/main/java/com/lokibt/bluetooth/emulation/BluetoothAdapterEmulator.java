@@ -167,7 +167,6 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             parcel.writeString(address);
             parcel.writeString("10.0.2.2"); // TODO remove me
             parcel.writeString(this.generateName(address));
-            parcel.writeParcelableArray(new BluetoothDeviceService[]{}, 0);
             parcel.setDataPosition(0);
             device = BluetoothDevice.CREATOR.createFromParcel(parcel);
         }
