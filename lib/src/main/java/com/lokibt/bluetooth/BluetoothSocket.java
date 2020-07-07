@@ -47,7 +47,7 @@ public class BluetoothSocket implements CommandCallback {
             Log.d(TAG, "Connecting to " + this.uuid.toString() + " on " + this.remote.getAddress());
             Connect connectCmd = new Connect(this.uuid, this);
             this.socket = connectCmd.open();
-            new Thread(connectCmd).start();
+            connectCmd.execute();
         }
     }
 
