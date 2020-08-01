@@ -9,15 +9,12 @@ import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Discovery extends Command {
     private final static String TAG = "BTCMD_DISCOVERY";
-
-    private boolean shallStop = false;
-
-    public Set<BluetoothDevice> devices = new HashSet<BluetoothDevice>();
 
     public Discovery(CommandCallback callback) {
         super(CommandType.DISCOVERY, callback);
@@ -28,8 +25,8 @@ public class Discovery extends Command {
         BluetoothAdapterEmulator emulator = BluetoothAdapterEmulator.getInstance();
         BufferedReader br = new BufferedReader(new InputStreamReader(this.in));
 
-        while (!shallStop) {
-            if (this.in.available() > 0) {
+        try {
+            while (true) {
                 String line = br.readLine();
                 Log.d(TAG, "line: " + line);
                 String[] deviceInfo = line.trim().split(",");
@@ -41,10 +38,22 @@ public class Discovery extends Command {
                 emulator.addDiscoveredDevice(BluetoothDevice.CREATOR.createFromParcel(device));
             }
         }
+        catch (SocketException e) {
+            String msg = e.getMessage();
+            if (msg.equals("Socket closed"))
+                Log.d(TAG, msg);
+            else
+                throw e;
+        }
     }
 
-    public void stop() {
-        this.shallStop = true;
+    @Override
+    public void close() throws IOException {
+        // the connection will be closed via stop()
+    }
+
+    public void stop() throws IOException {
+        super.close();
     }
 
     @Override

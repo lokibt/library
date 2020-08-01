@@ -79,8 +79,14 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         if (!isEnabled()) {
             return false;
         }
-        this.discoveryCmd.stop();
-        return true;
+        try {
+            this.discoveryCmd.stop();
+            return true;
+        }
+        catch(IOException e) {
+            Log.e(TAG, "Unable to cancel discovery", e);
+            return false;
+        }
     }
 
     public boolean disable() {
