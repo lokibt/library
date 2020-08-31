@@ -28,6 +28,9 @@ public class Discovery extends Command {
         try {
             while (true) {
                 String line = br.readLine();
+                if (line == null) {
+                    throw new IOException("LokiBT service closed discovery connection");
+                }
                 Log.d(TAG, "line: " + line);
                 String[] deviceInfo = line.trim().split(",");
                 Log.d(TAG, "Discovered device: " + deviceInfo[0]);

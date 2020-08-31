@@ -68,6 +68,9 @@ public class BluetoothServerSocketEmulator {
         BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String btaddr = br.readLine();
         String connId = br.readLine();
+        if (btaddr == null || connId == null) {
+            throw new IOException("\"LokiBT service closed announce connection\"");
+        }
         Log.i(TAG, "Incoming connection from " + btaddr + ": " + connId);
         Link linkCmd = new Link(connId);
         Socket socket = linkCmd.open();
