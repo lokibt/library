@@ -235,8 +235,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     listenSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
                     Log.d(TAG, "Waiting for client connections...");
                     while (runServer) {
+                        dataSocket = listenSocket.accept();
                         try {
-                            dataSocket = listenSocket.accept();
                             InputStream inStream = dataSocket.getInputStream();
                             OutputStream outStream = dataSocket.getOutputStream();
                             BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
