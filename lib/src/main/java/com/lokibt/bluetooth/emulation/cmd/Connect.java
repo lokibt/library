@@ -28,6 +28,9 @@ public class Connect extends Command {
     protected void readResponse() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(this.in));
         String line = br.readLine();
+        if (line == null) {
+            throw new IOException("LokiBT service closed connect connection");
+        }
         if (line.equals("fail")) {
             throw new IOException("Error while opening Bluetooth socket for " + this.address + " " + this.uuid);
         }
