@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import com.lokibt.bluetooth.BluetoothAdapter;
 import com.lokibt.bluetooth.BluetoothDevice;
 import com.lokibt.bluetooth.BluetoothServerSocket;
+import com.lokibt.bluetooth.BluetoothSocket;
 import com.lokibt.bluetooth.emulation.cmd.Command;
 import com.lokibt.bluetooth.emulation.cmd.CommandCallback;
 import com.lokibt.bluetooth.emulation.cmd.CommandType;
@@ -96,6 +97,8 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         }
         setState(BluetoothAdapter.STATE_TURNING_OFF);
         stopDiscoverable();
+        BluetoothServerSocketEmulator.closeAllOpenSockets();
+        BluetoothSocket.closeAllOpenSockets();
         return true;
     }
 
