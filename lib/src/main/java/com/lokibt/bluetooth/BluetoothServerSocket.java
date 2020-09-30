@@ -3,6 +3,7 @@ package com.lokibt.bluetooth;
 import com.lokibt.bluetooth.emulation.BluetoothServerSocketEmulator;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.UUID;
 
 public class BluetoothServerSocket {
@@ -22,5 +23,9 @@ public class BluetoothServerSocket {
 
     public void close() throws IOException {
         emulator.close();
+    }
+
+    public Socket _getRawSocket() throws IOException {
+        return emulator.socket;
     }
 }

@@ -24,7 +24,7 @@ public class BluetoothServerSocketEmulator {
 
     private static Set<Socket> openSockets = new HashSet<>();
 
-    private Socket socket;
+    public Socket socket;
     private UUID uuid;
 
     static void closeAllOpenSockets() {

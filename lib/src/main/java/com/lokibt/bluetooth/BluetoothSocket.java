@@ -81,7 +81,10 @@ public class BluetoothSocket implements CommandCallback {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void onClose(Command cmd) {
+    }
 
+    public Socket _getRawSocket() throws IOException {
+        return socket;
     }
 
     @Override
