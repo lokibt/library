@@ -2,13 +2,7 @@ package com.lokibt.bluetooth;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
-import com.lokibt.bluetooth.emulation.BluetoothDeviceService;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class BluetoothDevice implements Parcelable {
@@ -36,13 +30,7 @@ public class BluetoothDevice implements Parcelable {
         public BluetoothDevice createFromParcel(Parcel source) {
             BluetoothDevice device = new BluetoothDevice();
             device.addr = source.readString();
-            device.tcpAddr = source.readString();
             device.name = source.readString();
-            device.services = new ArrayList<BluetoothDeviceService>();
-            Parcelable[] tmp = source.readParcelableArray(BluetoothDevice.class.getClassLoader());
-            for (Parcelable s : tmp) {
-                device.services.add((BluetoothDeviceService) s);
-            }
             return device;
         }
 
@@ -53,27 +41,15 @@ public class BluetoothDevice implements Parcelable {
     };
     private BluetoothClass btClass;
     private String addr;
-    private String tcpAddr;
     private String name;
-    private List<BluetoothDeviceService> services;
 
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(addr);
-        out.writeString(tcpAddr);
         out.writeString(name);
-        out.writeParcelableArray(services.toArray(new BluetoothDeviceService[]{}), 0);
     }
 
-    public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) throws IOException {
-        String uuidStr = uuid.toString();
-        for (BluetoothDeviceService s : services) {
-            if (s.getUuid().equals(uuidStr)) {
-                Log.i("BT_DEVICE", "found service " + uuidStr + " on device " + this.addr);
-                return new BluetoothSocket(this, uuid);
-            }
-
-        }
-        throw new IOException("sdp serivce discovery failed: service not found");
+    public BluetoothSocket createRfcommSocketToServiceRecord(UUID uuid) {
+        return new BluetoothSocket(this, uuid);
     }
 
     public int describeContents() {
@@ -105,6 +81,6 @@ public class BluetoothDevice implements Parcelable {
     }
 
     public String toString() {
-        return "BluetoothDevice " + addr + ", " + name + " -> " + tcpAddr;
+        return "BluetoothDevice " + addr + ", " + name;
     }
 }

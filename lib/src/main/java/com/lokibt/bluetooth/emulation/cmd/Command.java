@@ -11,12 +11,13 @@ public abstract class Command implements Runnable {
     final static String TAG = "BTEMU_CMD";
 
     public static String host = "letorbi.de";
-    public static int port = 8199;
+    public static int port = 8198;
     public static String group = "";
 
-    protected Socket socket;
-    protected InputStream in;
-    protected OutputStream out;
+    Socket socket;
+    InputStream in;
+    OutputStream out;
+
     private CommandCallback callback;
     private CommandType type;
 
@@ -47,7 +48,7 @@ public abstract class Command implements Runnable {
             }
         }
         if (this.callback != null) {
-            callback.onFinish();
+            callback.onFinish(this);
         }
     }
 
@@ -71,6 +72,13 @@ public abstract class Command implements Runnable {
         this.out.close();
         this.in.close();
         this.socket.close();
+        if (this.callback != null) {
+            callback.onClose(this);
+        }
+    }
+
+    public CommandType getType() {
+        return this.type;
     }
 
     protected void writePreamble() throws IOException {

@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -20,14 +22,29 @@ import java.util.concurrent.TimeUnit;
 public class BluetoothServerSocketEmulator {
     private static final String TAG = "BTEMU_SERVERSOCKET";
 
+    private static Set<Socket> openSockets = new HashSet<>();
+
     private Socket socket;
     private UUID uuid;
+
+    static void closeAllOpenSockets() {
+        for (Socket socket : BluetoothServerSocketEmulator.openSockets) {
+            try {
+                socket.close();
+            }
+            catch (IOException e) {
+                Log.d(TAG, "Exception while closing open server socket", e);
+            }
+        }
+        BluetoothServerSocketEmulator.openSockets.clear();
+    }
 
     public BluetoothServerSocketEmulator(UUID uuid) {
         try {
             this.uuid = uuid;
             Announce addCmd = new Announce(this.uuid);
             this.socket = addCmd.open();
+            BluetoothServerSocketEmulator.openSockets.add(this.socket);
             new Thread(addCmd).start();
         } catch (IOException e) {
             Log.e(TAG, "Cannot create Bluetooth server socket", e);
@@ -60,6 +77,7 @@ public class BluetoothServerSocketEmulator {
 
     public void close() throws IOException {
         this.socket.close();
+        BluetoothServerSocketEmulator.openSockets.remove(this.socket);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +86,9 @@ public class BluetoothServerSocketEmulator {
         BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String btaddr = br.readLine();
         String connId = br.readLine();
+        if (btaddr == null || connId == null) {
+            throw new IOException("\"LokiBT service closed announce connection\"");
+        }
         Log.i(TAG, "Incoming connection from " + btaddr + ": " + connId);
         Link linkCmd = new Link(connId);
         Socket socket = linkCmd.open();

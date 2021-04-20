@@ -2,27 +2,21 @@ package com.lokibt.bluetooth.emulation.cmd;
 
 import com.lokibt.bluetooth.BluetoothSocket;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.UUID;
 
 public class Connect extends Command {
-    private BluetoothSocket btsocket;
+
     private UUID uuid;
+    private String address;
 
     public Connect(UUID uuid, BluetoothSocket btsocket) {
         super(CommandType.CONNECT, btsocket);
-        this.btsocket = btsocket;
+        this.address = btsocket.getRemoteDevice().getAddress();
         this.uuid = uuid;
-    }
-
-    @Override
-    public Socket open() throws IOException {
-        super.open();
-        super.writePreamble();
-        sendParameter(this.btsocket.getRemoteDevice().getAddress());
-        sendParameter(this.uuid.toString());
-        return this.socket;
     }
 
     @Override
@@ -32,16 +26,19 @@ public class Connect extends Command {
 
     @Override
     protected void readResponse() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(this.in));
+        String line = br.readLine();
+        if (line == null) {
+            throw new IOException("LokiBT service closed connect connection");
+        }
+        if (line.equals("fail")) {
+            throw new IOException("Error while opening Bluetooth socket for " + this.address + " " + this.uuid);
+        }
     }
-
 
     @Override
     protected void sendParameters() throws IOException {
-        // parameters have already been set via open()
-    }
-
-    @Override
-    protected void writePreamble() throws IOException {
-        // preamble has already been set via open()
+        sendParameter(this.address);
+        sendParameter(this.uuid.toString());
     }
 }

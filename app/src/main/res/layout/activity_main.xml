@@ -34,10 +34,15 @@
         android:paddingBottom="20dp"
         android:text="Start server" />
 
-    <Button
+    <Switch
+        android:id="@+id/discovery_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onDiscoveryClick"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="20dp"
         android:text="Discover devices" />
 
     <ListView

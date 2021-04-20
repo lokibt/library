@@ -1,5 +1,6 @@
 package com.lokibt.bluetooth.emulation.cmd;
 
 public interface CommandCallback {
-    void onFinish();
+    void onClose(Command cmd);
+    void onFinish(Command cmd);
 }
