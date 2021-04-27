@@ -18,6 +18,16 @@
             </intent-filter>
         </activity>
 
+        <service
+            android:name="com.lokibt.emulator.EmulatorService"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="com.lokibt.emulator.action.BIND" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

@@ -103,8 +103,8 @@ public class BluetoothAdapter {
     };
 
     private BluetoothAdapter(Context context) {
-        Intent intent = new Intent("LOKIBT_BIND_SERVICE");
-        intent.setPackage("com.lokibt.companion");
+        Intent intent = new Intent("com.lokibt.emulator.action.BIND");
+        intent.setPackage("com.lokibt.emulator");
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
