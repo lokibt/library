@@ -1,12 +1,28 @@
 package com.lokibt.bluetooth;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.util.Log;
+
 import com.lokibt.bluetooth.emulation.BluetoothAdapterEmulator;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class BluetoothAdapter {
+    private static final String TAG = "BTADAPTER";
+
     public static final String ACTION_DISCOVERY_FINISHED = "com.lokibt.bluetooth.adapter.action.DISCOVERY_FINISHED";
     public static final String ACTION_DISCOVERY_STARTED = "com.lokibt.bluetooth.adapter.action.DISCOVERY_STARTED";
     public static final String ACTION_LOCAL_NAME_CHANGED = "com.lokibt.bluetooth.adapter.action.LOCAL_NAME_CHANGED";
@@ -41,9 +57,55 @@ public class BluetoothAdapter {
 
     public static BluetoothAdapter getDefaultAdapter() {
         if (defaultAdapter == null) {
-            defaultAdapter = new BluetoothAdapter();
+            try {
+                // Getting application context via reflection
+                // https://stackoverflow.com/questions/2002288/static-way-to-get-context-in-android
+                Context context = (Context) Class.forName("android.app.ActivityThread")
+                    .getMethod("currentApplication").invoke(null, (Object[]) null);
+                defaultAdapter = new BluetoothAdapter(context);
+            } catch (Exception e) {
+                Log.e(TAG, "unable to get application context", e);
+            }
         }
         return defaultAdapter;
+    }
+
+    private Handler handler = new Handler(Looper.getMainLooper()) {
+        public void handleMessage(Message msg) {
+            Bundle bundle = msg.getData();
+            Log.d(TAG, "data received: " + bundle.getString("data"));
+        }
+    };
+
+    private Messenger service = null;
+    private Messenger client = new Messenger(handler);
+
+    private ServiceConnection connection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            BluetoothAdapter.this.service = new Messenger(service);
+            // send a message for testing
+            Message msg = Message.obtain(handler);
+            Bundle bundle = new Bundle();
+            bundle.putString("data", "hello from library");
+            msg.setData(bundle);
+            msg.what = 1;
+            msg.replyTo = client;
+            try {
+                BluetoothAdapter.this.service.send(msg);
+            } catch (RemoteException e) {
+                Log.e(TAG, "unable to communicate with service", e);
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            BluetoothAdapter.this.service = null;
+        }
+    };
+
+    private BluetoothAdapter(Context context) {
+        Intent intent = new Intent("LOKIBT_BIND_SERVICE");
+        intent.setPackage("com.lokibt.companion");
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     public boolean cancelDiscovery() {

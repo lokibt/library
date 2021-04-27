@@ -1,3 +1,4 @@
+include ':emulator'
 rootProject.name='Loki BT Library'
-include ':app'
-include ':lib'
+include ':testing'
+include ':bluetooth'

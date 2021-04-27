@@ -2,12 +2,17 @@ package com.lokibt.bluetooth.emulation;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.Parcel;
-import android.util.ArraySet;
+import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;

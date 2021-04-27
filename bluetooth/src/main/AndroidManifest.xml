@@ -1,11 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lokibt.bluetooth">
 
+    <!-- Allow IPC with companion app (required for API 30 and higher) -->
+    <queries>
+        <package android:name="com.lokibt.emulator" />
+    </queries>
+
     <!-- needs internet permission to contact the discovery server... -->
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
     <application>
-
         <activity
             android:name="com.lokibt.bluetooth.emulation.BluetoothDialog"
             android:excludeFromRecents="true"
@@ -20,7 +24,6 @@
                 <action android:name="com.lokibt.bluetooth.adapter.action.REQUEST_DISCOVERABLE" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>
