@@ -1,6 +1,9 @@
 package com.lokibt.emulator;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,7 +17,13 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 
+import com.lokibt.emulator.databinding.ActivityMainBinding;
+import com.lokibt.emulator.emulation.cmd.Command;
+
 public class MainActivity extends AppCompatActivity {
+    ActivityMainBinding binding;
+    EmulatorViewModel viewModel;
+
     /** Messenger for communicating with the service. */
     Messenger mService = null;
 
@@ -44,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void sayHello(View v) {
+        Log.d("MAIN", "hello host: " + viewModel.host.getValue());
         if (!bound) return;
         // Create and send a message to the service, using a supported 'what' value
         Message msg = Message.obtain(null, 1, 0, 0);
@@ -57,7 +67,41 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        viewModel = new ViewModelProvider(this).get(EmulatorViewModel.class);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setLifecycleOwner(this);
+
+        binding.setViewModel(viewModel);
+        setContentView(binding.getRoot());
+
+        viewModel.host.observe(
+            this, new Observer<String>() {
+                @Override
+                public void onChanged(String value) {
+                    Log.d("MAIN", "host changed: " + value);
+                    Command.host = value;
+                }
+            });
+
+        viewModel.port.observe(
+            this, new Observer<String>() {
+                @Override
+                public void onChanged(String value) {
+                    Log.d("MAIN", "port changed: " + value);
+                    Command.port = Integer.parseInt(value);
+                }
+            });
+
+
+        viewModel.group.observe(
+            this, new Observer<String>() {
+                @Override
+                public void onChanged(String value) {
+                    Log.d("MAIN", "group changed: " + value);
+                    Command.group = value;
+                }
+            });
     }
 
     @Override
