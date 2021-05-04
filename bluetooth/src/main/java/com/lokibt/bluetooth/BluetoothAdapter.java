@@ -57,55 +57,9 @@ public class BluetoothAdapter {
 
     public static BluetoothAdapter getDefaultAdapter() {
         if (defaultAdapter == null) {
-            try {
-                // Getting application context via reflection
-                // https://stackoverflow.com/questions/2002288/static-way-to-get-context-in-android
-                Context context = (Context) Class.forName("android.app.ActivityThread")
-                    .getMethod("currentApplication").invoke(null, (Object[]) null);
-                defaultAdapter = new BluetoothAdapter(context);
-            } catch (Exception e) {
-                Log.e(TAG, "unable to get application context", e);
-            }
+            defaultAdapter = new BluetoothAdapter();
         }
         return defaultAdapter;
-    }
-
-    private Handler handler = new Handler(Looper.getMainLooper()) {
-        public void handleMessage(Message msg) {
-            Bundle bundle = msg.getData();
-            Log.d(TAG, "data received: " + bundle.getString("data"));
-        }
-    };
-
-    private Messenger service = null;
-    private Messenger client = new Messenger(handler);
-
-    private ServiceConnection connection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            BluetoothAdapter.this.service = new Messenger(service);
-            // send a message for testing
-            Message msg = Message.obtain(handler);
-            Bundle bundle = new Bundle();
-            bundle.putString("data", "hello from library");
-            msg.setData(bundle);
-            msg.what = 1;
-            msg.replyTo = client;
-            try {
-                BluetoothAdapter.this.service.send(msg);
-            } catch (RemoteException e) {
-                Log.e(TAG, "unable to communicate with service", e);
-            }
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            BluetoothAdapter.this.service = null;
-        }
-    };
-
-    private BluetoothAdapter(Context context) {
-        Intent intent = new Intent("com.lokibt.emulator.action.BIND");
-        intent.setPackage("com.lokibt.emulator");
-        context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     public boolean cancelDiscovery() {

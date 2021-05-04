@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
@@ -53,12 +55,48 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     private Join join;
     private Discovery discoveryCmd;
 
+    private Handler handler = new Handler(Looper.getMainLooper()) {
+        public void handleMessage(Message msg) {
+            Bundle bundle = msg.getData();
+            Log.d(TAG, "data received: " + bundle.getString("data"));
+        }
+    };
+
+    private Messenger service = null;
+    private Messenger client = new Messenger(handler);
+
+    private ServiceConnection connection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            BluetoothAdapterEmulator.this.service = new Messenger(service);
+            // send a message for testing
+            Message msg = Message.obtain(handler);
+            Bundle bundle = new Bundle();
+            bundle.putString("data", "hello from library");
+            msg.setData(bundle);
+            msg.what = 1;
+            msg.replyTo = client;
+            try {
+                BluetoothAdapterEmulator.this.service.send(msg);
+            } catch (RemoteException e) {
+                Log.e(TAG, "unable to communicate with service", e);
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            BluetoothAdapterEmulator.this.service = null;
+        }
+    };
+
     private BluetoothAdapterEmulator(Context context) {
         this.context = context;
         this.bondedDevices = new HashSet<BluetoothDevice>();
         this.discoveredDevices = new HashSet<BluetoothDevice>();
         // Generating a name will also set the address
         this.name = generateName(getAddress(false));
+
+        Intent intent = new Intent("com.lokibt.emulator.action.BIND");
+        intent.setPackage("com.lokibt.emulator");
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
     public static BluetoothAdapterEmulator getInstance() {
