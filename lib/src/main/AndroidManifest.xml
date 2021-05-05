@@ -9,7 +9,7 @@
         <activity
             android:name="com.lokibt.bluetooth.emulation.BluetoothDialog"
             android:excludeFromRecents="true"
-            android:exported="true"
+            android:exported="false"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
             <intent-filter>
                 <action android:name="com.lokibt.bluetooth.adapter.action.REQUEST_ENABLE" />
