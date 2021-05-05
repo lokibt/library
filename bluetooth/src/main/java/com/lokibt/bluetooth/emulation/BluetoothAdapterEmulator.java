@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.net.LocalServerSocket;
+import android.net.LocalSocket;
+import android.net.LocalSocketAddress;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,6 +18,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
@@ -33,6 +37,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -67,6 +74,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
 
     private ServiceConnection connection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(TAG, "service connected");
             BluetoothAdapterEmulator.this.service = new Messenger(service);
             // send a message for testing
             Message msg = Message.obtain(handler);
@@ -83,20 +91,38 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         }
 
         public void onServiceDisconnected(ComponentName className) {
+            Log.d(TAG, "service disconnected");
             BluetoothAdapterEmulator.this.service = null;
         }
     };
 
-    private BluetoothAdapterEmulator(Context context) {
+    private Socket socket;
+
+    private BluetoothAdapterEmulator(Context context) throws IOException {
         this.context = context;
         this.bondedDevices = new HashSet<BluetoothDevice>();
         this.discoveredDevices = new HashSet<BluetoothDevice>();
         // Generating a name will also set the address
         this.name = generateName(getAddress(false));
 
+        Log.d(TAG, "creating server socket...");
+        ServerSocket server = new ServerSocket(0, 0, InetAddress.getByName("127.0.0.1"));
+        Log.d(TAG, "port: " + server.getLocalPort());
+
+        Log.d(TAG, "starting binding to service...");
         Intent intent = new Intent("com.lokibt.emulator.action.BIND");
         intent.setPackage("com.lokibt.emulator");
+        intent.putExtra("port", server.getLocalPort());
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
+
+        Log.d(TAG, "waiting for connection...");
+        Long start = System.currentTimeMillis();
+        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
+        socket = server.accept();
+        Long end = System.currentTimeMillis();
+        Log.d(TAG, "connected, ms: " + (end - start));
+        server.close();
+        socket.close();
     }
 
     public static BluetoothAdapterEmulator getInstance() {
@@ -198,6 +224,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     }
 
     public String getName() {
+        Log.d(TAG, "get name");
         checkPermission();
         return this.name;
     }

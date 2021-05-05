@@ -3,16 +3,23 @@ package com.lokibt.emulator;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.LocalSocket;
+import android.net.LocalSocketAddress;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.StrictMode;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.Socket;
+
 public class EmulatorService extends Service {
+  private final String TAG = this.getClass().getName();
   /**
    * Command to the service to display a message
    */
@@ -67,6 +74,30 @@ public class EmulatorService extends Service {
   @Override
   public IBinder onBind(Intent intent) {
     Toast.makeText(getApplicationContext(), "binding", Toast.LENGTH_SHORT).show();
+
+    int port = intent.getIntExtra("port", 0);
+    if (port != 0) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Socket socket = null;
+                    try {
+                        Log.d(TAG, "trying to connect...");
+                        Log.d(TAG, "port: " + port);
+                        socket = new Socket("127.0.0.1", port);
+                        Log.d(TAG, "connected");
+                    } catch (Exception e) {
+                        Log.e(TAG, "error while connecting...", e);
+                    }
+                    try {
+                        socket.close();
+                    } catch (Exception e) {
+                        Log.e(TAG, "unable to close socket", e);
+                    }
+                }
+            }).start();
+    }
+
     mMessenger = new Messenger(new IncomingHandler(this));
     return mMessenger.getBinder();
   }

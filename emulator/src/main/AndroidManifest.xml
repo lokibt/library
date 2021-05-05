@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lokibt.emulator">
 
-    <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -16,37 +17,35 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.lokibt.emulator.BluetoothDialog"
+            android:name=".BluetoothDialog"
             android:excludeFromRecents="true"
             android:exported="true"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
-
             <intent-filter>
                 <action android:name="com.lokibt.bluetooth.adapter.action.REQUEST_ENABLE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <action android:name="com.lokibt.bluetooth.adapter.action.REQUEST_DISCOVERABLE" />
             </intent-filter>
         </activity>
 
         <service
-            android:name="com.lokibt.emulator.EmulatorService"
+            android:name=".EmulatorService"
             android:enabled="true"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="com.lokibt.emulator.action.BIND" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>
