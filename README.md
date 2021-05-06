@@ -64,18 +64,18 @@ Everything related to **Bluetooth profiles** has not been implemented at all. We
 
 ### Class implementation status
 
-* `BluetoothAdapter`: partly implemented
-* `BluetoothDevice`: partly implemented
-* `BluetoothSocket`: partly implemented
-* `BluetoothServerSocket`: partly implemented
-* `BluetoothClass`: partly implemented
-* `BluetoothProfile`: not implemented
-* `BluetoothHeadset`: not implemented
-* `BluetoothA2dp`: not implemented
-* `BluetoothHealth`: not implemented
-* `BluetoothHealthCallback`: not implemented
-* `BluetoothHealthAppConfiguration`: not implemented
-* `BluetoothProfile.ServiceListener`: not implemented
+* `BluetoothAdapter`: 🟡 partly implemented
+* `BluetoothDevice`: 🟡 partly implemented
+* `BluetoothSocket`: 🟡 partly implemented
+* `BluetoothServerSocket`: 🟡 partly implemented
+* `BluetoothClass`: 🟡 partly implemented
+* `BluetoothProfile`: 🔴 not implemented
+* `BluetoothHeadset`: 🔴 not implemented
+* `BluetoothA2dp`: 🔴 not implemented
+* `BluetoothHealth`: 🔴 not implemented
+* `BluetoothHealthCallback`: 🔴 not implemented
+* `BluetoothHealthAppConfiguration`: 🔴 not implemented
+* `BluetoothProfile.ServiceListener`: 🔴 not implemented
 
 ## Credits
 
