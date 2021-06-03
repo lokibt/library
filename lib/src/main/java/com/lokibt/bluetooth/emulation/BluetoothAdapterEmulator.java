@@ -81,7 +81,8 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             return false;
         }
         try {
-            this.discoveryCmd.stop();
+            if (this.discoveryCmd != null)
+                this.discoveryCmd.stop();
             return true;
         }
         catch(IOException e) {
@@ -95,10 +96,11 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         if (this.state == BluetoothAdapter.STATE_OFF || this.state == BluetoothAdapter.STATE_TURNING_OFF) {
             return false;
         }
-        setState(BluetoothAdapter.STATE_TURNING_OFF);
+        cancelDiscovery();
         stopDiscoverable();
         BluetoothServerSocketEmulator.closeAllOpenSockets();
         BluetoothSocket.closeAllOpenSockets();
+        setState(BluetoothAdapter.STATE_TURNING_OFF);
         return true;
     }
 
