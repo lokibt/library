@@ -257,7 +257,6 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         switch (cmd.getType()) {
             case DISCOVERY:
                 Log.d(TAG, "DISCOVERY finished");
-                this.discoveredDevices = null;
                 this.discoveryCmd = null;
                 sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
                 break;
