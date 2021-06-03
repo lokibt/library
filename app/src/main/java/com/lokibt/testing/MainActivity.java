@@ -100,9 +100,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
                     logToView("Bluetooth discovery started");
+                    discoverySwitch.setChecked(true);
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
                     logToView("Bluetooth discovery finished");
+                    discoverySwitch.setChecked(false);
                     break;
                 case BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED:
                     logToView("Bluetooth name changed to: " + intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME));
@@ -169,8 +171,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //intent.putExtra(BluetoothAdapter.EXTRA_LOKIBT_GROUP, "com.lokibt.testing");
             startActivityForResult(intent, REQUEST_ENABLE);
         } else {
-            discoverableSwitch.setChecked(false);
-            serverSwitch.setChecked(false);
             logToView("Disabling Bluetooth...");
             bluetoothAdapter.disable();
         }
@@ -215,10 +215,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }
         else {
-            if (bluetoothAdapter.cancelDiscovery()) {
-                listData.clear();
-                listAdapter.notifyDataSetChanged();
-            } else {
+            if (!bluetoothAdapter.cancelDiscovery()) {
                 Toast.makeText(this, "Problem while cancelling the Bluetooth discovery", Toast.LENGTH_SHORT).show();
             }
         }
@@ -232,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 BluetoothSocket dataSocket = null;
                 try {
                     logToView("Starting server...");
+                    bluetoothAdapter.cancelDiscovery(); // Discovery should be stopped before providing a service
                     listenSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("dk.echo", UUID.fromString("419bbc68-c365-4c5e-8793-5ebff85b908c"));
                     Log.d(TAG, "Waiting for client connections...");
                     while (runServer) {
@@ -401,6 +399,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_DISCOVERABLE:
                 switch (resultCode) {
@@ -409,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case RESULT_CANCELED:
                         Log.d(TAG, "REQUEST_DISCOVERABLE returned: RESULT_CANCELED");
+                        discoverableSwitch.setChecked(false);
                         break;
                     default:
                         Log.e(TAG, "REQUEST_DISCOVERABLE returned unknown result code: " + resultCode);
@@ -421,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case RESULT_CANCELED:
                         Log.d(TAG, "REQUEST_ENABLE returned: RESULT_CANCELED");
+                        enableSwitch.setChecked(false);
                         break;
                     default:
                         Log.e(TAG, "REQUEST_ENABLE returned unknown result code: " + resultCode);
