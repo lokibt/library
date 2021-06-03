@@ -199,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             runServer = true;
             startServer();
         } else {
+            serverSwitch.setChecked(true);
+            serverSwitch.setEnabled(false);
             runServer = false;
             Toast.makeText(this, "Server will be disabled after the next message has been received.", Toast.LENGTH_SHORT).show();
         }
@@ -211,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 listData.clear();
                 listAdapter.notifyDataSetChanged();
             } else {
+                discoverySwitch.setChecked(false);
                 Toast.makeText(this, "Bluetooth needs to be enabled first", Toast.LENGTH_SHORT).show();
             }
         }
@@ -277,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         @Override
                         public void run() {
                             serverSwitch.setChecked(false);
+                            serverSwitch.setEnabled(true);
                         }
                     });
                     try {
@@ -341,12 +345,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 } catch (IOException e) {
                     logErrorToView("Exception in client", e);
                 } finally {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            serverSwitch.setChecked(false);
-                        }
-                    });
                     try {
                         Log.d(TAG, "Closing client socket");
                         if (socket != null) {
