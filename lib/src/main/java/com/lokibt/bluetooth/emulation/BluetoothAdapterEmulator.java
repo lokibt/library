@@ -101,6 +101,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         BluetoothServerSocketEmulator.closeAllOpenSockets();
         BluetoothSocket.closeAllOpenSockets();
         setState(BluetoothAdapter.STATE_TURNING_OFF);
+        setState(BluetoothAdapter.STATE_OFF);
         return true;
     }
 
