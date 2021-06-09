@@ -244,6 +244,15 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     }
 
     public void addDiscoveredDevice(BluetoothDevice device) {
+        // Return if device is already in list
+        String addr = device.getAddress();
+        for(BluetoothDevice d : this.discoveredDevices) {
+            Log.d(TAG, addr + " == " + d.getAddress());
+            if(d != null && d.getAddress().equals(addr)) {
+                return;
+            }
+        }
+        // Add device to list
         Log.d(TAG, "Discovered device: " + device);
         Bundle extras = new Bundle();
         extras.putParcelable(BluetoothDevice.EXTRA_DEVICE, device);
