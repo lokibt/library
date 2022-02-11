@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
@@ -22,10 +21,7 @@ import com.lokibt.bluetooth.emulation.cmd.CommandType;
 import com.lokibt.bluetooth.emulation.cmd.Discovery;
 import com.lokibt.bluetooth.emulation.cmd.Join;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -126,27 +122,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             checkPermission();
         }
         if (this.address == null) {
-            try {
-                FileInputStream fis = this.context.openFileInput("BTADDR.TXT");
-                Log.d(TAG, "reading Bluetooth address");
-                byte[] buf = new byte[100];
-                int read = fis.read(buf);
-                this.address = new String(buf, 0, read);
-            } catch (Exception readException) {
-                Log.d(TAG, "error while reading Bluetooth address", readException);
-                try {
-                    Log.d(TAG, "saving Bluetooth address");
-                    String addr = generateAddress();
-                    FileOutputStream fos = this.context.openFileOutput("BTADDR.TXT", Context.MODE_PRIVATE);
-                    OutputStreamWriter outw = new OutputStreamWriter(fos);
-                    outw.write(addr);
-                    outw.flush();
-                    outw.close();
-                    this.address = addr;
-                } catch (Exception writeException) {
-                    Log.e(TAG, "error while writing Bluetooth address", writeException);
-                }
-            }
+            this.address = generateAddress();
             Log.d(TAG, "Bluetooth address is: " + this.address);
         }
         return this.address;
@@ -353,10 +329,10 @@ public class BluetoothAdapterEmulator implements CommandCallback {
 
     private String generateAddress() {
         Log.d(TAG, "generating Bluetooth address");
-        //sample: 00:11:22:AA:BB:CC
+        long seed = Utils.getIPSeed() | Utils.getDeviceSeed(context);
         String chars = "ABCDEF";
         StringBuffer sb = new StringBuffer();
-        Random r = new Random();
+        Random r = new Random(seed);
         boolean f = true;
         for (int i = 0; i < 3; i++) {
             if (f) {
