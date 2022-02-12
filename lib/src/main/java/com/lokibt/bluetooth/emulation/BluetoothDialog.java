@@ -59,11 +59,8 @@ public class BluetoothDialog extends Activity {
     public void onAllow(View view) {
         switch (intent.getAction()) {
             case BluetoothAdapter.ACTION_REQUEST_ENABLE:
-                if (emulator.enable()) {
-                    setResult(RESULT_OK);
-                } else {
-                    setResult(Activity.RESULT_CANCELED);
-                }
+                emulator.enable();
+                setResult(RESULT_OK);
                 finish();
                 break;
             case BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE:

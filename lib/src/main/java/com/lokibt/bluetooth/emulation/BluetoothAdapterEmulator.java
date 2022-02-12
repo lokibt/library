@@ -283,10 +283,8 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             enable();
         }
         try {
-            if (this.join == null) {
-                this.join = new Join(this, duration);
-                new Thread(this.join).start();
-            }
+            this.join = new Join(this, duration);
+            new Thread(this.join).start();
         } catch (Exception e) {
             Log.e(TAG, "Error while starting JOIN thread", e);
             this.join = null;

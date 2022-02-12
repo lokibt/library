@@ -47,9 +47,7 @@ public abstract class Command implements Runnable {
                 }
             }
         }
-        if (this.callback != null) {
-            callback.onFinish(this);
-        }
+        this.finish();
     }
 
     public Socket open() throws IOException {
@@ -79,6 +77,12 @@ public abstract class Command implements Runnable {
 
     public CommandType getType() {
         return this.type;
+    }
+
+    protected void finish() {
+        if (this.callback != null) {
+            callback.onFinish(this);
+        }
     }
 
     protected void writePreamble() throws IOException {
