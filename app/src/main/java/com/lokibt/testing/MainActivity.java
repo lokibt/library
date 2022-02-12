@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             startActivityForResult(intent, REQUEST_DISCOVERABLE);
         } else {
             discoverableSwitch.setChecked(true);
-            Toast.makeText(this, "Discoverable state will be automatically revoked after 300 seconds.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Discoverable state will be automatically revoked after 600 seconds.", Toast.LENGTH_SHORT).show();
         }
     }
 
