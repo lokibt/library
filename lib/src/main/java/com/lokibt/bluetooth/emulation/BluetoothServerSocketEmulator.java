@@ -90,7 +90,7 @@ public class BluetoothServerSocketEmulator {
             throw new IOException("\"LokiBT service closed announce connection\"");
         }
         Log.i(TAG, "Incoming connection from " + btaddr + ": " + connId);
-        Link linkCmd = new Link(connId);
+        Link linkCmd = new Link(BluetoothAdapterEmulator.getInstance().getAddress(false), uuid, connId);
         Socket socket = linkCmd.open();
         new Thread(linkCmd).start();
         BluetoothDevice device = BluetoothAdapterEmulator.getInstance().getRemoteDevice(btaddr.trim());
