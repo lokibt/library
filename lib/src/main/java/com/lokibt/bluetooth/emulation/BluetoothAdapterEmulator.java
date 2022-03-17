@@ -23,6 +23,7 @@ import com.lokibt.bluetooth.emulation.cmd.Join;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -42,7 +43,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     private int scanMode = BluetoothAdapter.SCAN_MODE_NONE;
 
     private Join join;
-    private Discovery discoveryCmd;
+    private LinkedList<Discovery> discoveryCmdList = new LinkedList<>();
 
     private BluetoothAdapterEmulator(Context context) {
         this.context = context;
@@ -77,8 +78,14 @@ public class BluetoothAdapterEmulator implements CommandCallback {
             return false;
         }
         try {
-            if (this.discoveryCmd != null)
-                this.discoveryCmd.stop();
+            int cmdCount = this.discoveryCmdList.size();
+            if (cmdCount > 0) {
+                Discovery cmd = this.discoveryCmdList.removeFirst();
+                cmd.stop();
+            }
+            if (cmdCount > 1) {
+                Log.d(TAG, "Remaining discovery commands: " + (cmdCount-1));
+            }
             return true;
         }
         catch(IOException e) {
@@ -174,7 +181,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
 
     public boolean isDiscovering() {
         checkPermission();
-        return this.discoveryCmd != null;
+        return this.discoveryCmdList.size() != 0;
     }
 
     public boolean isEnabled() {
@@ -209,8 +216,9 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         }
         try {
             this.discoveredDevices = new HashSet<>();
-            this.discoveryCmd = new Discovery(this);
-            new Thread(this.discoveryCmd).start();
+            Discovery cmd = new Discovery(this);
+            discoveryCmdList.add(cmd);
+            new Thread(cmd).start();
             sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
             return true;
         } catch (Exception e) {
@@ -243,7 +251,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
         switch (cmd.getType()) {
             case DISCOVERY:
                 Log.d(TAG, "DISCOVERY finished");
-                this.discoveryCmd = null;
+                this.discoveryCmdList.remove(cmd);
                 sendBroadcast(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
                 break;
             case JOIN:
