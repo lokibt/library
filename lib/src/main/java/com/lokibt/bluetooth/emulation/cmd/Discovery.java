@@ -14,8 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Discovery extends Command {
-    private final static String TAG = "BTCMD_DISCOVERY";
-
     public Discovery(CommandCallback callback) {
         super(CommandType.DISCOVERY, callback);
     }
@@ -33,7 +31,7 @@ public class Discovery extends Command {
                 }
                 Log.d(TAG, "line: " + line);
                 String[] deviceInfo = line.trim().split(",");
-                Log.d(TAG, "Discovered device: " + deviceInfo[0]);
+                Log.d(TAG, "discovered device: " + deviceInfo[0]);
                 Parcel device = Parcel.obtain();
                 device.writeString(deviceInfo[0]);
                 device.writeString(emulator.generateName(deviceInfo[0]));
@@ -43,10 +41,11 @@ public class Discovery extends Command {
         }
         catch (SocketException e) {
             String msg = e.getMessage();
-            if (msg.equals("Socket closed"))
-                Log.d(TAG, msg);
-            else
+            if (!msg.equals("Socket closed"))
                 throw e;
+        }
+        finally {
+            Log.d(TAG, "discovery thread is exiting...");
         }
     }
 
