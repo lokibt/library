@@ -32,7 +32,8 @@ public class Connect extends Command {
             throw new IOException("LokiBT service closed connect connection");
         }
         if (line.equals("fail")) {
-            throw new IOException("Error while opening Bluetooth socket for " + this.address + " " + this.uuid);
+            String reason = br.readLine();
+            throw new IOException("Unable to open Bluetooth socket for " + this.address + " " + this.uuid + " (" + reason + ")");
         }
     }
 
