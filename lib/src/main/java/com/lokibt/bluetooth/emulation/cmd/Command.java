@@ -64,9 +64,12 @@ public abstract class Command implements Runnable {
     }
 
     public void close() throws IOException {
-        this.out.close();
-        this.in.close();
-        this.socket.close();
+        if (this.out != null)
+            this.out.close();
+        if (this.in != null)
+            this.in.close();
+        if (this.socket != null)
+            this.socket.close();
         Log.d(TAG, "socket and streams closed");
         // TODO Can finish and close callbacks be merged? Check join command.
         if (this.callback != null) {

@@ -52,7 +52,8 @@ public class Join extends Command {
     }
 
     public void closeImmediately() throws IOException {
-        timer.cancel();
+        if (timer != null)
+            timer.cancel();
         active = null;
         super.close();
     }
@@ -67,7 +68,8 @@ public class Join extends Command {
 
     private void update(int d) {
         duration = d;
-        timer.cancel();
+        if (timer != null)
+            timer.cancel();
         close();
     }
 }
