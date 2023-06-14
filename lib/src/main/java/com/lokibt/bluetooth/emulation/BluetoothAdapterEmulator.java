@@ -35,7 +35,7 @@ public class BluetoothAdapterEmulator implements CommandCallback {
 
     private String address;
     private Context context;
-    private Activity ctrlActivity = null;
+    //private Activity ctrlActivity = null;
     private Set<BluetoothDevice> discoveredDevices;
     private String name;
     private int state = BluetoothAdapter.STATE_OFF;
@@ -281,10 +281,10 @@ public class BluetoothAdapterEmulator implements CommandCallback {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void setActivity(Activity ctrlActivity) {
+    /*void setActivity(Activity ctrlActivity) {
         Log.d(TAG, "Setting controller activity " + ctrlActivity);
         this.ctrlActivity = ctrlActivity;
-    }
+    }*/
 
     void startDiscoverable(int duration) {
         if (!isEnabled()) {
@@ -376,13 +376,13 @@ public class BluetoothAdapterEmulator implements CommandCallback {
     }
 
     private void sendResult(int result) {
-        Log.v(TAG, "Sending result: " + result);
-        if (this.ctrlActivity == null) {
+        Log.v(TAG, "Sending result obsolete");
+        /*if (this.ctrlActivity == null) {
             Log.e(TAG, "trying to finish controller activity, but it is not set");
         }
         this.ctrlActivity.setResult(result);
         this.ctrlActivity.finish();
-        this.ctrlActivity = null;
+        this.ctrlActivity = null;*/
     }
 
     private void setScanMode(int scanMode) {

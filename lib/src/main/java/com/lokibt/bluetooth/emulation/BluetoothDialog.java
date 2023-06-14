@@ -53,15 +53,13 @@ public class BluetoothDialog extends Activity {
                 break;
         }
 
-        emulator.setActivity(this);
+        //emulator.setActivity(this);
     }
 
     public void onAllow(View view) {
         switch (intent.getAction()) {
             case BluetoothAdapter.ACTION_REQUEST_ENABLE:
                 emulator.enable();
-                setResult(RESULT_OK);
-                finish();
                 break;
             case BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE:
                 emulator.startDiscoverable(duration);
@@ -69,6 +67,8 @@ public class BluetoothDialog extends Activity {
             default:
                 Log.e(TAG, "Unknown action: " + intent.getAction());
         }
+        setResult(RESULT_OK);
+        finish();
     }
 
     public void onDeny(View view) {
